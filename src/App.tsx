@@ -1,26 +1,48 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { FC } from 'react'
+import { Grommet, ThemeType } from 'grommet'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import { createGlobalStyle } from 'styled-components'
+import Dashboard from './components/Dashboard'
+
+const GlobalStyle = createGlobalStyle`
+  @font-face {
+    font-family: 'Lato';
+    src: local('Lato'), url(./fonts/Lato-Regular.ttf) format('truetype');
+  }
+
+  body {
+    font-family: "Lato", sans-serif;
+  }
+`
+
+const theme: ThemeType = {
+  card: {
+    body: { pad: 'small' },
+    container: {
+      background: { light: 'light-1', dark: 'dark-1' },
+      margin: 'small',
+      round: '4px',
+      border: { color: { light: 'light-5' }, size: 'small' },
+    },
+    header: {
+      pad: 'small',
+      background: { light: 'light-3', dark: 'dark-3' },
+      border: {
+        color: { light: 'light-5' },
+        size: 'small',
+        side: 'bottom',
+      },
+    },
+  },
 }
 
-export default App;
+const App: FC = () => {
+  return (
+    <Grommet theme={theme} themeMode={'dark'} full>
+      <GlobalStyle />
+      <Dashboard />
+    </Grommet>
+  )
+}
+
+export default App
