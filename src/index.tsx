@@ -1,8 +1,15 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import { CSSProp } from 'styled-components'
 
 import App from './App'
 import reportWebVitals from './reportWebVitals'
+
+declare module 'react' {
+  interface Attributes {
+    css?: CSSProp
+  }
+}
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(

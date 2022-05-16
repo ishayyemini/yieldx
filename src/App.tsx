@@ -1,8 +1,9 @@
 import { FC } from 'react'
-import { Grommet, ThemeType } from 'grommet'
+import { Box, Grommet, ThemeType } from 'grommet'
 
 import { createGlobalStyle } from 'styled-components'
 import Dashboard from './components/Dashboard'
+import SideMenu from './components/SideMenu'
 
 const GlobalStyle = createGlobalStyle`
   @font-face {
@@ -40,7 +41,11 @@ const App: FC = () => {
   return (
     <Grommet theme={theme} themeMode={'dark'} full>
       <GlobalStyle />
-      <Dashboard />
+
+      <Box direction={'row'} fill>
+        <SideMenu />
+        <Dashboard />
+      </Box>
     </Grommet>
   )
 }
