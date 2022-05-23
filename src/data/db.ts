@@ -136,7 +136,32 @@ export class MySubClassedDexie extends Dexie {
     })
   }
 
-  loadInitialData() {}
+  loadInitialData() {
+    const initTypes = [
+      'Unknown',
+      'PSFarm',
+      'EggStorage',
+      'Setter',
+      'Hatchery',
+      'ChickHall',
+      'PreHeat',
+      'House',
+      'HatchRoom',
+      'Grabage',
+      'Restore',
+      'Transfer Room',
+      'Loading Ramp',
+      'BRFarm',
+      'Customer',
+      'Supplier',
+      'Slaughterhouse',
+      'Hallway',
+      'Truck',
+      'Area',
+    ].map((type, index) => ({ TypeID: index, TypeDescription: type }))
+    // TODO add hook to properly format data!
+    db.WarehouseType.bulkPut([])
+  }
 }
 
 export const db = new MySubClassedDexie()
