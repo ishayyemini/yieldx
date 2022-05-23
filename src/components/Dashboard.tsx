@@ -1,15 +1,16 @@
-import { Main } from 'grommet'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { Box, Main } from 'grommet'
 
-import { CardWrapper, ChartCard } from './app/AppComponents'
+import { db } from '../data/db'
 
 const Dashboard = () => {
+  const warehouses = useLiveQuery(() => db.Warehouses?.toArray())
+
   return (
     <Main>
-      <CardWrapper>
-        <ChartCard />
-        <ChartCard />
-        <ChartCard />
-      </CardWrapper>
+      {warehouses?.map((warehouse) => (
+        <Box pad={'small'}>{warehouse.Name}</Box>
+      ))}
     </Main>
   )
 }

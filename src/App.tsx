@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { Box, Grommet, ThemeType } from 'grommet'
-
 import { createGlobalStyle } from 'styled-components'
+
 import Dashboard from './components/Dashboard'
 import SideMenu from './components/SideMenu'
 
