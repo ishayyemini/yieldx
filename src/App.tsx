@@ -1,9 +1,10 @@
-import { FC } from 'react'
+import { FC, useEffect } from 'react'
 import { Box, Grommet, ThemeType } from 'grommet'
 import { createGlobalStyle } from 'styled-components'
 
 import Dashboard from './components/Dashboard'
 import SideMenu from './components/SideMenu'
+import { db } from './data/db'
 
 const GlobalStyle = createGlobalStyle`
   @font-face {
@@ -38,6 +39,10 @@ const theme: ThemeType = {
 }
 
 const App: FC = () => {
+  useEffect(() => {
+    db.loadInitialData().then()
+  }, [])
+
   return (
     <Grommet theme={theme} themeMode={'dark'} full>
       <GlobalStyle />
