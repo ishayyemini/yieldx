@@ -80,6 +80,22 @@ export interface Product {
   ParentProduct?: ID
 }
 
+export interface Flock {
+  UID: ID
+  Name: string
+  HatchDate: string
+  Size: number
+  DateCreate: string
+  DateModified: string
+}
+
+export interface FlockWarehouse {
+  FlockID: ID
+  WHID: ID
+  DateCreate: string
+  DateModified: string
+}
+
 export interface EZTransaction {
   UID: ID
   CreateDate: string
@@ -121,16 +137,20 @@ export class MySubClassedDexie extends Dexie {
   WHOwnerChilds!: Table<WHOwnerChild>
   WHProdAmount!: Table<WHProdAmount>
   Products!: Table<Product>
+  Flocks!: Table<Flock>
+  FlocksWarehouse!: Table<FlockWarehouse>
   EZTransactions!: Table<EZTransaction>
   WarehouseType!: Table<WarehouseType>
 
   constructor() {
     super('myDatabase')
-    this.version(2).stores({
-      Warehouses: 'UID, Type',
+    this.version(4).stores({
+      Warehouses: 'UID, Type, Name',
       WHOwnerChilds: '[OwnerID+ChildID]',
       WHProdAmount: '[WHID+ProdID], Amount',
       Products: 'UID, &FlockID, &FlockWHID, &DailyReportID',
+      Flocks: 'UID, Name, HatchDate, Size',
+      FlocksWarehouse: '[FlockID+WHID]',
       EZTransactions: 'UID, &SourceWH,  &DestinationWH, DueDate, &Product',
       WarehouseType: 'TypeID',
     })
@@ -140,9 +160,12 @@ export class MySubClassedDexie extends Dexie {
     const ST_AMOUNT = 12
     const HR_AMOUNT = 4
     const now = new Date().toISOString().replace(/[TZ]/g, ' ')
+    const halfYear = new Date(new Date().getTime() - 1000 * 3600 * 24 * 180)
+      .toISOString()
+      .replace(/[TZ]/g, ' ')
 
     const initWT = async () => {
-      const initTypes: Array<WarehouseType> = [
+      const initData: Array<WarehouseType> = [
         'Unknown',
         'PSFarm',
         'EggStorage',
@@ -169,18 +192,18 @@ export class MySubClassedDexie extends Dexie {
         DateCreate: now,
         DateModified: now,
       }))
-      const dataInDB = await db.WarehouseType.toArray()
-      const changed = !initTypes.every((type) =>
+      const dataInDB = await this.WarehouseType.toArray()
+      const changed = !initData.every((type) =>
         dataInDB.find(
           (typeInDB) =>
             typeInDB.TypeID === type.TypeID &&
             typeInDB.TypeDescription === type.TypeDescription
         )
       )
-      if (changed) await db.WarehouseType.bulkPut(initTypes)
+      if (changed) await this.WarehouseType.bulkPut(initData)
     }
     const initWarehouses = async () => {
-      const initTypes: Array<Warehouse> = [
+      const initData: Array<Warehouse> = [
         // Parent Stock
         { UID: PS, Type: 1, Name: 'PS1', MaxCapacity: 0 },
         { UID: PS_ES, Type: 2, Name: 'PS1_ES1', MaxCapacity: 0 }, // EggStorage
@@ -218,8 +241,8 @@ export class MySubClassedDexie extends Dexie {
         Status: 1,
       }))
 
-      const dataInDB = await db.Warehouses.toArray()
-      const changed = !initTypes.every((wh) =>
+      const dataInDB = await this.Warehouses.toArray()
+      const changed = !initData.every((wh) =>
         dataInDB.find(
           (whInDB) =>
             whInDB.UID === wh.UID &&
@@ -229,12 +252,14 @@ export class MySubClassedDexie extends Dexie {
         )
       )
       if (changed) {
-        db.Warehouses.clear()
-        db.Warehouses.bulkPut(initTypes)
+        this.Warehouses.clear()
+        this.WHProdAmount.clear()
+        this.EZTransactions.clear()
+        this.Warehouses.bulkPut(initData)
       }
     }
     const initWHC = async () => {
-      const initTypes: Array<WHOwnerChild> = [
+      const initData: Array<WHOwnerChild> = [
         { OwnerID: PS, ChildID: PS_ES },
         { OwnerID: PS, ChildID: PS_H },
 
@@ -259,21 +284,43 @@ export class MySubClassedDexie extends Dexie {
         DateModified: now,
       }))
 
-      const dataInDB = await db.WHOwnerChilds.toArray()
-      const changed = !initTypes.every((whc) =>
+      const dataInDB = await this.WHOwnerChilds.toArray()
+      const changed = !initData.every((whc) =>
         dataInDB.find(
           (whcInDB) =>
             whcInDB.OwnerID === whc.OwnerID && whcInDB.ChildID === whc.ChildID
         )
       )
       if (changed) {
-        db.WHOwnerChilds.clear()
-        db.WHOwnerChilds.bulkPut(initTypes)
+        this.WHOwnerChilds.clear()
+        this.WHOwnerChilds.bulkPut(initData)
+      }
+    }
+    const initFL = async () => {
+      const initFlocks: Array<Flock> = [
+        {
+          UID: FL,
+          Name: 'PS1_FL1',
+          Size: 15100,
+          HatchDate: halfYear,
+          DateCreate: now,
+          DateModified: now,
+        },
+      ]
+      const initFlocksWarehouse: Array<FlockWarehouse> = [
+        { FlockID: FL, WHID: PS_H, DateCreate: now, DateModified: now },
+      ]
+
+      if (!(await this.Flocks.get(FL))) {
+        this.Flocks.clear()
+        this.FlocksWarehouse.clear()
+        this.Flocks.bulkPut(initFlocks)
+        this.FlocksWarehouse.bulkPut(initFlocksWarehouse)
       }
     }
     const getUIDs = async () => {
-      const whList = await db.Warehouses.toArray()
-      const whcList = await db.WHOwnerChilds.toArray()
+      const whList = await this.Warehouses.toArray()
+      const whcList = await this.WHOwnerChilds.toArray()
 
       const getChildrenUID = (owner: ID, type: number): Array<ID> =>
         whcList
@@ -305,6 +352,10 @@ export class MySubClassedDexie extends Dexie {
       const SL = whList.find((wh) => wh.Type == 16)?.UID ?? uuid()
       const SL_LR = getChildrenUID(SL, 12)[0] ?? uuid()
 
+      const FL =
+        (await this.FlocksWarehouse.toArray().then((flw) => flw?.[0]?.WHID)) ??
+        uuid()
+
       return {
         PS,
         PS_ES,
@@ -319,6 +370,7 @@ export class MySubClassedDexie extends Dexie {
         HT_TR,
         SL,
         SL_LR,
+        FL,
       }
     }
 
@@ -336,11 +388,13 @@ export class MySubClassedDexie extends Dexie {
       HT_TR,
       SL,
       SL_LR,
+      FL,
     } = await getUIDs()
 
     await initWT()
     await initWarehouses()
     await initWHC()
+    await initFL()
   }
 }
 
