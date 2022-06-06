@@ -40,7 +40,7 @@ const theme: ThemeType = {
 
 const App: FC = () => {
   useEffect(() => {
-    db.loadInitialData().then()
+    db.loadInitialData()
   }, [])
 
   return (

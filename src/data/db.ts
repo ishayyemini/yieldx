@@ -63,7 +63,7 @@ export interface Product {
   FlockID: ID
   FlockWHID: ID
   LayingDate: string
-  Type: number
+  // Type: number
   // UserID: string
   DateCreate: string
   DateModified: string
@@ -395,6 +395,41 @@ export class MySubClassedDexie extends Dexie {
     await initWarehouses()
     await initWHC()
     await initFL()
+  }
+
+  async birthEggs() {
+    const ES_ID = await this.Warehouses.get({ Name: 'PS1_ES1' }).then(
+      (wh) => wh?.UID
+    )
+    const H_ID = await this.Warehouses.get({ Name: 'PS1_H1' }).then(
+      (wh) => wh?.UID
+    )
+    const FlockID = await this.Flocks.get({ Name: 'PS1_FL1' }).then(
+      (fl) => fl?.UID
+    )
+    const ProdID = uuid()
+    const now = new Date().toISOString().replace(/[TZ]/g, ' ')
+    const Name = `PS1_H1_${Date.now()}`
+
+    if (ES_ID && H_ID && FlockID) {
+      await this.Products.put({
+        UID: ProdID,
+        Name,
+        FlockID,
+        FlockWHID: H_ID,
+        LayingDate: now,
+        InitAmount: 2400,
+        DateCreate: now,
+        DateModified: now,
+      })
+      await this.WHProdAmount.put({
+        WHID: H_ID,
+        ProdID,
+        Amount: 2400,
+        DateCreate: now,
+        DateModified: now,
+      })
+    } else console.error('Missing some warehouses!')
   }
 }
 
