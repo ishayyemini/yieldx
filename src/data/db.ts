@@ -208,6 +208,7 @@ export class MySubClassedDexie extends Dexie {
         { UID: PS, Type: 1, Name: 'PS1', MaxCapacity: 0 },
         { UID: PS_ES, Type: 2, Name: 'PS1_ES1', MaxCapacity: 0 }, // EggStorage
         { UID: PS_H, Type: 7, Name: 'PS1_H1', MaxCapacity: 0 }, // House
+        { UID: PS_LR, Type: 12, Name: 'PS1_LR1', MaxCapacity: 1000000 }, // LoadingRamp
 
         // BRFarm
         { UID: BR, Type: 13, Name: 'BR1', MaxCapacity: 0 },
@@ -262,6 +263,7 @@ export class MySubClassedDexie extends Dexie {
       const initData: Array<WHOwnerChild> = [
         { OwnerID: PS, ChildID: PS_ES },
         { OwnerID: PS, ChildID: PS_H },
+        { OwnerID: PS, ChildID: PS_LR },
 
         { OwnerID: BR, ChildID: BR_H },
 
@@ -334,6 +336,7 @@ export class MySubClassedDexie extends Dexie {
       const PS = whList.find((wh) => wh.Type == 1)?.UID ?? uuid()
       const PS_ES = getChildrenUID(PS, 2)[0] ?? uuid()
       const PS_H = getChildrenUID(PS, 7)[0] ?? uuid()
+      const PS_LR = getChildrenUID(PS, 12)[0] ?? uuid()
 
       const BR = whList.find((wh) => wh.Type == 13)?.UID ?? uuid()
       const BR_H = getChildrenUID(BR, 7)[0] ?? uuid()
@@ -360,6 +363,7 @@ export class MySubClassedDexie extends Dexie {
         PS,
         PS_ES,
         PS_H,
+        PS_LR,
         BR,
         BR_H,
         HT,
@@ -378,6 +382,7 @@ export class MySubClassedDexie extends Dexie {
       PS,
       PS_ES,
       PS_H,
+      PS_LR,
       BR,
       BR_H,
       HT,
