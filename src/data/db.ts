@@ -206,31 +206,31 @@ export class MySubClassedDexie extends Dexie {
       const initData: Array<Warehouse> = [
         // Parent Stock
         { UID: PS, Type: 1, Name: 'PS1', MaxCapacity: 0 },
-        { UID: PS_ES, Type: 2, Name: 'PS1_ES1', MaxCapacity: 0 }, // EggStorage
         { UID: PS_H, Type: 7, Name: 'PS1_H1', MaxCapacity: 0 }, // House
+        { UID: PS_ES, Type: 2, Name: 'PS1_ES1', MaxCapacity: 0 }, // EggStorage
         { UID: PS_LR, Type: 12, Name: 'PS1_LR1', MaxCapacity: 1000000 }, // LoadingRamp
-
-        // BRFarm
-        { UID: BR, Type: 13, Name: 'BR1', MaxCapacity: 0 },
-        { UID: BR_H, Type: 7, Name: 'BR1_H1', MaxCapacity: 0 }, // House
 
         // Hatchery
         { UID: HT, Type: 4, Name: 'HT1', MaxCapacity: 0 },
-        { UID: HT_CH, Type: 5, Name: 'HT1_CH1', MaxCapacity: 1000000 }, // ChickHall
         { UID: HT_ES, Type: 2, Name: 'HT1_ES1', MaxCapacity: 1000000 }, // EggStorage
-        ...Array.from({ length: HR_AMOUNT }, (_, i) => ({
-          UID: HT_HR[i],
-          Type: 8,
-          Name: `HT1_HR${i}`,
-          MaxCapacity: 28800,
-        })), // HatchRoom
         ...Array.from({ length: ST_AMOUNT }, (_, i) => ({
           UID: HT_ST[i],
           Type: 3,
           Name: `HT1_ST${i}`,
           MaxCapacity: 57600,
         })), // Setter
+        ...Array.from({ length: HR_AMOUNT }, (_, i) => ({
+          UID: HT_HR[i],
+          Type: 8,
+          Name: `HT1_HR${i}`,
+          MaxCapacity: 28800,
+        })), // HatchRoom
+        { UID: HT_CH, Type: 5, Name: 'HT1_CH1', MaxCapacity: 1000000 }, // ChickHall
         { UID: HT_TR, Type: 18, Name: 'HT1_TR1', MaxCapacity: 100000 }, // Truck
+
+        // BRFarm
+        { UID: BR, Type: 13, Name: 'BR1', MaxCapacity: 0 },
+        { UID: BR_H, Type: 7, Name: 'BR1_H1', MaxCapacity: 0 }, // House
 
         // SlaughterHouse
         { UID: SL, Type: 16, Name: 'SL1', MaxCapacity: 0 },
