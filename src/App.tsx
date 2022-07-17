@@ -14,10 +14,23 @@ const GlobalStyle = createGlobalStyle`
 
   body {
     font-family: "Lato", sans-serif;
+    --main: #f9dec8ff;
+    --accent1: #90e39aff;
+    --accent2: #ce4760ff;
+    --active: #ddf093ff;
+    --muted: #638475ff;
+    --body: #E0E0E0;
   }
 `
 
 const theme: ThemeType = {
+  global: {
+    colors: {
+      brand: 'var(--main)',
+      'accent-1': 'var(--accent1)',
+      'accent-2': 'var(--accent2)',
+    },
+  },
   card: {
     body: { pad: 'small' },
     container: {
