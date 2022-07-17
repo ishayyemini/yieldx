@@ -6,7 +6,7 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    debug: true,
+    debug: true, // TODO remove for production
     fallbackLng: 'en',
     interpolation: { escapeValue: false },
     resources: {
@@ -26,5 +26,4 @@ i18n
       },
     },
   })
-
-export default i18n
+  .then()
