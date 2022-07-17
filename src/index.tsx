@@ -4,6 +4,7 @@ import { CSSProp } from 'styled-components'
 
 import App from './App'
 import reportWebVitals from './reportWebVitals'
+import './data/i18n'
 
 declare module 'react' {
   interface Attributes {
