@@ -329,30 +329,30 @@ export class MySubClassedDexie extends Dexie {
           .filter(
             (whc) =>
               whc.OwnerID === owner &&
-              whList.find((wh) => wh.Type == type && wh.UID == whc.ChildID)
+              whList.find((wh) => wh.Type === type && wh.UID === whc.ChildID)
           )
           .map((whc) => whc.ChildID)
 
-      const PS = whList.find((wh) => wh.Type == 1)?.UID ?? uuid()
+      const PS = whList.find((wh) => wh.Type === 1)?.UID ?? uuid()
       const PS_ES = getChildrenUID(PS, 2)[0] ?? uuid()
       const PS_H = getChildrenUID(PS, 7)[0] ?? uuid()
       const PS_LR = getChildrenUID(PS, 12)[0] ?? uuid()
 
-      const BR = whList.find((wh) => wh.Type == 13)?.UID ?? uuid()
+      const BR = whList.find((wh) => wh.Type === 13)?.UID ?? uuid()
       const BR_H = getChildrenUID(BR, 7)[0] ?? uuid()
 
-      const HT = whList.find((wh) => wh.Type == 4)?.UID ?? uuid()
+      const HT = whList.find((wh) => wh.Type === 4)?.UID ?? uuid()
       const HT_CH = getChildrenUID(HT, 5)[0] ?? uuid()
       const HT_ES = getChildrenUID(HT, 2)[0] ?? uuid()
       let HT_HR = getChildrenUID(HT, 8)
-      if (HT_HR.length != HR_AMOUNT)
+      if (HT_HR.length !== HR_AMOUNT)
         HT_HR = Array.from({ length: HR_AMOUNT }, () => uuid())
       let HT_ST = getChildrenUID(HT, 3)
-      if (HT_ST.length != ST_AMOUNT)
+      if (HT_ST.length !== ST_AMOUNT)
         HT_ST = Array.from({ length: ST_AMOUNT }, () => uuid())
       const HT_TR = getChildrenUID(HT, 18)[0] ?? uuid()
 
-      const SL = whList.find((wh) => wh.Type == 16)?.UID ?? uuid()
+      const SL = whList.find((wh) => wh.Type === 16)?.UID ?? uuid()
       const SL_LR = getChildrenUID(SL, 12)[0] ?? uuid()
 
       const FL =
