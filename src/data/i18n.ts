@@ -22,6 +22,13 @@ i18n
             pressure: 'Pressure',
             voc: 'VOC',
           },
+          warehouseWidget: {
+            house: 'House',
+            eggStorage: 'Egg Storage',
+            loadingRamp: 'Loading Ramp',
+            garbage: 'Garbage',
+            unknown: 'Unknown',
+          },
         },
       },
     },
