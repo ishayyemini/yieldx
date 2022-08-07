@@ -52,25 +52,22 @@ const label_trolleys = async ({ db, flock, date, wh, label }) => {
   }
   const client = await mqtt.connectAsync('mqtt://3.127.195.30:1883', options)
 
-  try {
-    await Promise.all(
-      products.map((id) =>
-        client.publish(
-          `yxtmmsg/${id}/label`,
-          JSON.stringify({
-            TS: Math.round(Date.now() / 1000),
-            Label: label,
-            RelObject: 2,
-          })
-        )
+  await Promise.all(
+    products.map((id) =>
+      client.publish(
+        `yxtmmsg/${id}/label`,
+        JSON.stringify({
+          TS: Math.round(Date.now() / 1000),
+          Label: label,
+          RelObject: 2,
+        })
       )
     )
-    await client.end()
-    console.log('Done')
-  } catch (e) {
-    console.log(e.stack)
-    process.exit()
-  }
+  )
+  await client.end()
+  console.log('Done')
+
+  return 'Done'
 }
 
 module.exports.default = label_trolleys
