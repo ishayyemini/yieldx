@@ -1,0 +1,37 @@
+org: yieldx
+app: lambdas
+service: lambdas
+
+frameworkVersion: '2 || 3'
+
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  profile: yieldx
+
+functions:
+  label_trolleys:
+    handler: label_trolleys.default
+    events:
+      - http:
+          method: get
+          path: default
+          integration: lambda
+          request:
+            parameters:
+              querystrings:
+                db: true
+                flock: true
+                date: true
+                wh: false
+                label: true
+            template:
+              application/json: |
+                { 
+                  "db" : "$input.params('db')",
+                  "flock" : "$input.params('flock')",
+                  "date" : "$input.params('date')",
+                  "wh" : "$input.params('wh')",
+                  "label" : "$input.params('label')"
+                }
