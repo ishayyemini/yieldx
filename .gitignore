@@ -3,6 +3,7 @@
 # dependencies
 /node_modules
 lambdas/node_modules
+lambdas/.serverless
 /.pnp
 .pnp.js
 

@@ -5,6 +5,8 @@ import { createGlobalStyle } from 'styled-components'
 import Dashboard from './components/Dashboard'
 import SideMenu from './components/SideMenu'
 import { db } from './data/db'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import LabelTrolleys from './components/LabelTrolleys'
 
 const GlobalStyle = createGlobalStyle`
   @font-face {
@@ -61,8 +63,14 @@ const App: FC = () => {
       <GlobalStyle />
 
       <Box direction={'row'} fill>
-        <SideMenu />
-        <Dashboard />
+        <BrowserRouter>
+          <SideMenu />
+
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="label-trolleys" element={<LabelTrolleys />} />
+          </Routes>
+        </BrowserRouter>
       </Box>
     </Grommet>
   )
