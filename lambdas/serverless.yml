@@ -16,8 +16,9 @@ functions:
     events:
       - http:
           method: get
-          path: default
+          path: label-trolleys
           integration: lambda
+          cors: true
           request:
             parameters:
               querystrings:

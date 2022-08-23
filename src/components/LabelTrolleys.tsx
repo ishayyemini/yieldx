@@ -31,8 +31,12 @@ const LabelTrolleys: FC = () => {
 
   const onSubmit = useCallback((values: TrolleyFormType) => {
     fetch(
-      'https://ls72mt05m4.execute-api.us-east-1.amazonaws.com/dev/default?' +
-        queryString.stringify({ ...values, db: 'ishay' })
+      'https://ls72mt05m4.execute-api.us-east-1.amazonaws.com/dev/label-trolleys?' +
+        queryString.stringify({
+          ...values,
+          date: new Date(values.date).toISOString().slice(0, 10),
+          db: 'ishay',
+        })
     )
       .then((res) => res.json())
       .then((res) => console.log(res))
