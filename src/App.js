@@ -69,8 +69,12 @@ const theme = {
 }
 
 const App = () => {
-  const [globalState, setGlobalState] = useState({ user: '' })
-  const [authStage, setAuthStage] = useState('signIn')
+  const [globalState, setGlobalState] = useState({
+    user: localStorage.getItem('user') ?? '',
+  })
+  const [authStage, setAuthStage] = useState(
+    globalState.user ? 'loggedIn' : 'signIn'
+  )
 
   useEffect(() => {
     db.loadInitialData()
@@ -81,11 +85,13 @@ const App = () => {
   }, [globalState.user])
 
   const loadUser = useCallback((user) => {
+    localStorage.setItem('user', user)
     setGlobalState((old) => ({ ...old, user }))
     setAuthStage('loggedIn')
   }, [])
 
   const signOut = useCallback(() => {
+    localStorage.setItem('user', '')
     setGlobalState({ user: '' })
     setAuthStage('signIn')
   }, [])
