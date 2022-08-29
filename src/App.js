@@ -1,12 +1,14 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Box, Grommet } from 'grommet'
-import {createGlobalStyle} from "styled-components";
+import { createGlobalStyle, css } from 'styled-components'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 import Dashboard from './components/Dashboard'
 import SideMenu from './components/SideMenu'
 import { db } from './data/db'
 import LabelTrolleys from './components/LabelTrolleys'
+import SignIn from './components/auth/SignIn'
+import GlobalContext from './components/app/GlobalContext'
 
 const GlobalStyle = createGlobalStyle`
   @font-face {
@@ -18,7 +20,7 @@ const GlobalStyle = createGlobalStyle`
     font-family: "Lato", sans-serif;
     --main: #f9dec8ff;
     --accent1: #90e39aff;
-    --accent2: #ce4760ff;
+    --accent2: #b26270ff;
     --active: #ddf093ff;
     --muted: #638475ff;
     --body: #E0E0E0;
@@ -31,47 +33,78 @@ const theme = {
       brand: 'var(--main)',
       'accent-1': 'var(--accent1)',
       'accent-2': 'var(--accent2)',
+      muted: 'var(--muted)',
     },
   },
   card: {
     body: { pad: 'small' },
     container: {
-      background: { light: 'light-1', dark: 'dark-1' },
+      background: { light: 'brand', dark: 'dark-1' },
       margin: 'small',
-      round: '4px',
+      pad: 'small',
+      round: 'medium',
+      elevation: 'none',
       border: { color: { light: 'light-5' }, size: 'small' },
     },
     header: {
-      pad: 'small',
-      background: { light: 'light-3', dark: 'dark-3' },
-      border: {
-        color: { light: 'light-5' },
-        size: 'small',
-        side: 'bottom',
-      },
+      margin: { bottom: 'small' },
+      justify: 'center',
+    },
+  },
+  button: {
+    default: { font: { weight: 'bold' } },
+    primary: {
+      background: 'accent-1',
+      font: { weight: 'bold' },
+    },
+    secondary: { background: 'muted', font: { weight: 'bold' } },
+    hover: {
+      extend: css`
+        transition: opacity 0.2s;
+        opacity: 0.7;
+      `,
     },
   },
 }
 
 const App = () => {
+  const [globalState, setGlobalState] = useState({ user: '' })
+  const [authStage, setAuthStage] = useState('signIn')
+
   useEffect(() => {
     db.loadInitialData()
   }, [])
 
+  const login = useCallback(() => {
+    setAuthStage('loggedIn')
+  }, [])
+
   return (
-      <Grommet theme={theme} full>
-        <Box direction={'row'} fill>
+    <Grommet theme={theme} full>
+      <Box direction={'row'} fill>
+        <GlobalContext.Provider value={{ ...globalState, setGlobalState }}>
           <BrowserRouter>
-            <SideMenu />
             <GlobalStyle />
 
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="label-trolleys" element={<LabelTrolleys />} />
-            </Routes>
+            {authStage === 'signIn' ? (
+              <Routes>
+                <Route path="/" element={<SignIn login={login} />} />
+              </Routes>
+            ) : null}
+
+            {authStage === 'loggedIn' ? (
+              <>
+                <SideMenu />
+                <Routes>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="label-trolleys" element={<LabelTrolleys />} />
+                </Routes>
+              </>
+            ) : null}
           </BrowserRouter>
-        </Box>
-      </Grommet>
+        </GlobalContext.Provider>
+      </Box>
+    </Grommet>
   )
 }
 

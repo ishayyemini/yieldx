@@ -12,6 +12,8 @@
     "dexie-react-hooks": "^1.1.1",
     "grommet": "^2.25.1",
     "grommet-icons": "^4.7.0",
+    "i18next": "^21.9.1",
+    "i18next-browser-languagedetector": "^6.1.5",
     "query-string": "^7.1.1",
     "react": "^18.2.0",
     "react-apexcharts": "^1.4.0",
@@ -19,11 +21,18 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.34.2",
     "react-i18next": "^11.18.4",
+    "react-loader-spinner": "^5.3.3",
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",
     "styled-components": "^5.3.5",
     "uuid": "^8.3.2",
     "web-vitals": "^2.1.4"
+  },
+  "prettier": {
+    "tabWidth": 2,
+    "semi": false,
+    "singleQuote": true,
+    "proseWrap": "always"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -48,5 +57,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "prettier": "^2.7.1"
   }
 }

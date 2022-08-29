@@ -12,6 +12,9 @@ i18n
     resources: {
       en: {
         translation: {
+          signIn: {
+            header: 'Sign In',
+          },
           compactWH: {
             whName: 'Name',
             eggsTotal: 'Total eggs',
