@@ -3,7 +3,7 @@ import * as Icons from 'grommet-icons'
 import styled from 'styled-components'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-const NavButton = styled(Button).attrs({
+const NavButtonStyled = styled(Button).attrs({
   plain: true,
   hoverIndicator: true,
 })`
@@ -13,25 +13,40 @@ const NavButton = styled(Button).attrs({
   ${(props) => (props.selected ? 'background: var(--accent1);' : '')}
 `
 
-const SideMenu = () => {
+const NavButton = ({ to, ...props }) => {
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
   return (
+    <NavButtonStyled
+      onClick={to ? () => navigate(to) : null}
+      selected={pathname === to}
+      {...props}
+    />
+  )
+}
+
+const SideMenu = ({ signOut }) => {
+  return (
     <Box pad={'small'} flex={false}>
-      <Sidebar round={'small'} background={'var(--main)'} gap={'medium'}>
-        <Nav gap={'xsmall'}>
+      <Sidebar
+        round={'small'}
+        background={'var(--main)'}
+        gap={'medium'}
+        footer={
           <NavButton
-            icon={<Icons.Fan />}
-            label={'Parent Stock'}
-            onClick={() => navigate('/')}
-            selected={pathname === '/'}
+            icon={<Icons.Logout />}
+            label={'Sign Out'}
+            onClick={signOut}
           />
+        }
+      >
+        <Nav gap={'xsmall'}>
+          <NavButton icon={<Icons.Fan />} label={'Parent Stock'} to={'/'} />
           <NavButton
             icon={<Icons.Car />}
             label={'Label Trolleys'}
-            onClick={() => navigate('/label-trolleys')}
-            selected={pathname === '/label-trolleys'}
+            to={'/label-trolleys'}
           />
         </Nav>
       </Sidebar>

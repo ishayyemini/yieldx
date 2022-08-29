@@ -85,6 +85,11 @@ const App = () => {
     setAuthStage('loggedIn')
   }, [])
 
+  const signOut = useCallback(() => {
+    setGlobalState({ user: '' })
+    setAuthStage('signIn')
+  }, [])
+
   return (
     <Grommet theme={theme} full>
       <Box direction={'row'} fill>
@@ -101,7 +106,7 @@ const App = () => {
 
             {authStage === 'loggedIn' ? (
               <>
-                <SideMenu />
+                <SideMenu signOut={signOut} />
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
                   <Route path="label-trolleys" element={<LabelTrolleys />} />
