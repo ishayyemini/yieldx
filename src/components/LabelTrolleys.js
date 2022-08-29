@@ -1,15 +1,8 @@
-import { FC, useCallback } from 'react'
+import { useCallback } from 'react'
 import { Box, Button, DateInput, FormField, Main, TextInput } from 'grommet'
 import { useForm } from 'react-hook-form'
 import queryString from 'query-string'
 import styled from 'styled-components'
-
-type TrolleyFormType = {
-  flock: string
-  label: string
-  date: string
-  wh: string
-}
 
 const Wrapper = styled(Box).attrs({
   background: { light: 'brand' },
@@ -17,7 +10,7 @@ const Wrapper = styled(Box).attrs({
   round: 'small',
 })``
 
-const LabelTrolleys: FC = () => {
+const LabelTrolleys = () => {
   const { register, handleSubmit, watch, setValue } = useForm({
     defaultValues: {
       flock: '',
@@ -29,7 +22,7 @@ const LabelTrolleys: FC = () => {
 
   const watchDate = watch('date')
 
-  const onSubmit = useCallback((values: TrolleyFormType) => {
+  const onSubmit = useCallback((values) => {
     fetch(
       'https://ls72mt05m4.execute-api.us-east-1.amazonaws.com/dev/label-trolleys?' +
         queryString.stringify({

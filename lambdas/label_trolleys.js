@@ -50,12 +50,16 @@ const label_trolleys = async ({ db, flock, date, wh, label }) => {
     clean: true,
     connectTimeout: 4000,
   }
-  const client = await mqtt.connectAsync('mqtt://3.127.195.30:1883', options)
+  const client = await mqtt.connectAsync(
+    'mqtt://broker.mqttdashboard.com:1883',
+    options
+  )
 
   await Promise.all(
     products.map((id) =>
       client.publish(
         `yxtmmsg/${id}/label`,
+        // TODO retain true!
         JSON.stringify({
           TS: Math.round(Date.now() / 1000),
           Label: label,

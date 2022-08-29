@@ -1,26 +1,14 @@
-import { FC } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 
 import { db } from '../data/db'
 import { Box } from 'grommet'
 import WarehouseWidget from './app/WarehouseWidget'
 
-type WarehouseData = {
-  whName: string
-  trolleyCount: number
-  eggsTotal: number
-  eggsToday: number
-  temp: number
-  humidity: number
-  pressure: number
-  voc: number
-}
-
-const Dashboard: FC = () => {
+const Dashboard = () => {
   const warehouses = useLiveQuery(() => db.Warehouses?.toArray())
   const whAmounts = useLiveQuery(() => db.WHProdAmount?.toArray())
 
-  const whHouse: WarehouseData[] = [
+  const whHouse = [
     {
       temp: 25,
       eggsToday: 100,
@@ -62,7 +50,7 @@ const Dashboard: FC = () => {
       voc: 5.3,
     },
   ]
-  const whEggStorage: WarehouseData[] = [
+  const whEggStorage = [
     {
       temp: 25,
       eggsToday: 100,
@@ -84,7 +72,7 @@ const Dashboard: FC = () => {
       voc: 5.3,
     },
   ]
-  const whLoadingRamp: WarehouseData[] = [
+  const whLoadingRamp = [
     {
       temp: 25,
       eggsToday: 100,

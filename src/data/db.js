@@ -1,147 +1,8 @@
-import Dexie, { Table } from 'dexie'
+import Dexie from 'dexie'
 
-import { ID, uuid } from './uuid'
-
-export interface Warehouse {
-  UID: ID
-  Type: number
-  Name: string
-  // Description: string
-  MaxCapacity: number
-  // ActualInventory: number
-  Status: number
-  // WHRows: number
-  // WHCols: number
-  // lat_Y: number
-  // long_X: number
-  // UserID: string
-  DateCreate: string
-  DateModified: string
-  // SystemLock: boolean
-  // Deleted: boolean
-  // Width?: number
-  // WHLength?: number
-  // Density?: number
-  // Alert?: boolean
-  // IsMulti?: boolean
-  // PlannedInventory?: number
-  // LocX?: number
-  // LocY?: number
-  // IsBioCore?: boolean
-  // LayoutImage?: string
-  // IsLoadingPoint?: boolean
-}
-
-export interface WHOwnerChild {
-  OwnerID: ID
-  ChildID: ID
-  // UserID: string
-  DateCreate: string
-  DateModified: string
-  // SystemLock?: boolean
-  // Deleted?: boolean
-}
-
-export interface WHProdAmount {
-  WHID: ID
-  ProdID: ID
-  Amount: number
-  // PlannedAmount: number
-  // UserID: string
-  DateCreate: string
-  DateModified: string
-  // SystemLock?: boolean
-  // Deleted?: boolean
-  // NfcID?: ID
-  // InDate?: string
-  // OccupationTime?: number
-}
-
-export interface Product {
-  UID: ID
-  Name: string
-  FlockID: ID
-  FlockWHID: ID
-  LayingDate: string
-  // Type: number
-  // UserID: string
-  DateCreate: string
-  DateModified: string
-  // SystemLock: boolean
-  // Deleted: boolean
-  // HatchingForecast: number
-  // ActualHatching: number
-  InitAmount: number
-  // PlanningState: number
-  // FertileSTD?: number
-  // FertileAct?: number
-  DailyReportID?: ID
-  TrolleyUID?: ID
-  ParentProduct?: ID
-}
-
-export interface Flock {
-  UID: ID
-  Name: string
-  HatchDate: string
-  Size: number
-  DateCreate: string
-  DateModified: string
-}
-
-export interface FlockWarehouse {
-  FlockID: ID
-  WHID: ID
-  DateCreate: string
-  DateModified: string
-}
-
-export interface EZTransaction {
-  UID: ID
-  CreateDate: string
-  SourceWH: ID
-  DestinationWH: ID
-  Amount: number
-  // Status: number
-  // ExecutionDate?: string
-  DueDate?: string
-  Product: ID
-  // BatchID?: ID
-  // ShipCert: ID
-  // UserID: string
-  DateCreate: string
-  DateModified: string
-  // TrolieType: ID
-  // Deleted: boolean
-  // SystemLock: boolean
-  // Type?: ID
-  // OrderID?: ID
-  // Position?: number
-  // Program?: number
-}
-
-export interface WarehouseType {
-  TypeID: number
-  TypeDescription: string
-  // UserID: string
-  DateCreate: string
-  DateModified: string
-  // SystemLock: boolean
-  // Deleted: boolean
-  // AllowedDest?: number
-  Color?: number
-}
+import { v4 as uuid } from 'uuid'
 
 export class MySubClassedDexie extends Dexie {
-  Warehouses!: Table<Warehouse>
-  WHOwnerChilds!: Table<WHOwnerChild>
-  WHProdAmount!: Table<WHProdAmount>
-  Products!: Table<Product>
-  Flocks!: Table<Flock>
-  FlocksWarehouse!: Table<FlockWarehouse>
-  EZTransactions!: Table<EZTransaction>
-  WarehouseType!: Table<WarehouseType>
-
   constructor() {
     super('myDatabase')
     this.version(4).stores({
@@ -165,7 +26,7 @@ export class MySubClassedDexie extends Dexie {
       .replace(/[TZ]/g, ' ')
 
     const initWT = async () => {
-      const initData: Array<WarehouseType> = [
+      const initData = [
         'Unknown',
         'PSFarm',
         'EggStorage',
@@ -203,7 +64,7 @@ export class MySubClassedDexie extends Dexie {
       if (changed) await this.WarehouseType.bulkPut(initData)
     }
     const initWarehouses = async () => {
-      const initData: Array<Warehouse> = [
+      const initData = [
         // Parent Stock
         { UID: PS, Type: 1, Name: 'PS1', MaxCapacity: 0 },
         { UID: PS_H, Type: 7, Name: 'PS1_H1', MaxCapacity: 0 }, // House
@@ -260,7 +121,7 @@ export class MySubClassedDexie extends Dexie {
       }
     }
     const initWHC = async () => {
-      const initData: Array<WHOwnerChild> = [
+      const initData = [
         { OwnerID: PS, ChildID: PS_ES },
         { OwnerID: PS, ChildID: PS_H },
         { OwnerID: PS, ChildID: PS_LR },
@@ -299,7 +160,7 @@ export class MySubClassedDexie extends Dexie {
       }
     }
     const initFL = async () => {
-      const initFlocks: Array<Flock> = [
+      const initFlocks = [
         {
           UID: FL,
           Name: 'PS1_FL1',
@@ -309,7 +170,7 @@ export class MySubClassedDexie extends Dexie {
           DateModified: now,
         },
       ]
-      const initFlocksWarehouse: Array<FlockWarehouse> = [
+      const initFlocksWarehouse = [
         { FlockID: FL, WHID: PS_H, DateCreate: now, DateModified: now },
       ]
 
@@ -324,7 +185,7 @@ export class MySubClassedDexie extends Dexie {
       const whList = await this.Warehouses.toArray()
       const whcList = await this.WHOwnerChilds.toArray()
 
-      const getChildrenUID = (owner: ID, type: number): Array<ID> =>
+      const getChildrenUID = (owner, type) =>
         whcList
           .filter(
             (whc) =>

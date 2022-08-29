@@ -1,24 +1,7 @@
-import { FC } from 'react'
 import styled from 'styled-components'
 import { Box } from 'grommet'
 import { useTranslation } from 'react-i18next'
 import Chart from 'react-apexcharts'
-
-interface ScaffoldProps {
-  kind: 'house' | 'eggStorage' | 'loadingRamp' | 'garbage' | 'unknown'
-  warehouses: WarehouseData[]
-}
-
-type WarehouseData = {
-  whName: string
-  eggsTotal: number
-  eggsToday?: number
-  trolleyCount?: number
-  temp?: number
-  humidity?: number
-  pressure?: number
-  voc?: number
-}
 
 const Wrapper = styled(Box).attrs({
   background: { light: 'brand' },
@@ -31,11 +14,11 @@ const Wrapper = styled(Box).attrs({
   //}
 `
 
-const WarehouseWidget: FC<ScaffoldProps> = ({ kind, warehouses }) => {
+const WarehouseWidget = ({ kind, warehouses }) => {
   const { t } = useTranslation()
 
   const whNames = warehouses.map((wh) => wh.whName)
-  const series: ApexAxisChartSeries = [
+  const series = [
     {
       name: 'eggsTotal',
       type: 'bar',
@@ -52,13 +35,11 @@ const WarehouseWidget: FC<ScaffoldProps> = ({ kind, warehouses }) => {
 
   if (kind === 'house' || kind === 'eggStorage' || kind === 'loadingRamp')
     series.concat(
-      (['temp', 'humidity', 'pressure'] as Array<keyof WarehouseData>).map(
-        (key) => ({
-          name: key,
-          type: 'line',
-          data: warehouses.map((wh) => ({ x: wh.whName, y: wh[key] })),
-        })
-      )
+      ['temp', 'humidity', 'pressure'].map((key) => ({
+        name: key,
+        type: 'line',
+        data: warehouses.map((wh) => ({ x: wh.whName, y: wh[key] })),
+      }))
     )
 
   return (

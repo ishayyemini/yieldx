@@ -1,11 +1,11 @@
-import { FC, useEffect } from 'react'
-import { Box, Grommet, ThemeType } from 'grommet'
-import { createGlobalStyle } from 'styled-components'
+import { useEffect } from 'react'
+import { Box, Grommet } from 'grommet'
+import {createGlobalStyle} from "styled-components";
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 import Dashboard from './components/Dashboard'
 import SideMenu from './components/SideMenu'
 import { db } from './data/db'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import LabelTrolleys from './components/LabelTrolleys'
 
 const GlobalStyle = createGlobalStyle`
@@ -25,7 +25,7 @@ const GlobalStyle = createGlobalStyle`
   }
 `
 
-const theme: ThemeType = {
+const theme = {
   global: {
     colors: {
       brand: 'var(--main)',
@@ -53,26 +53,25 @@ const theme: ThemeType = {
   },
 }
 
-const App: FC = () => {
+const App = () => {
   useEffect(() => {
     db.loadInitialData()
   }, [])
 
   return (
-    <Grommet theme={theme} themeMode={'dark'} full>
-      <GlobalStyle />
+      <Grommet theme={theme} full>
+        <Box direction={'row'} fill>
+          <BrowserRouter>
+            <SideMenu />
+            <GlobalStyle />
 
-      <Box direction={'row'} fill>
-        <BrowserRouter>
-          <SideMenu />
-
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="label-trolleys" element={<LabelTrolleys />} />
-          </Routes>
-        </BrowserRouter>
-      </Box>
-    </Grommet>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="label-trolleys" element={<LabelTrolleys />} />
+            </Routes>
+          </BrowserRouter>
+        </Box>
+      </Grommet>
   )
 }
 

@@ -1,17 +1,8 @@
-import { FC } from 'react'
-import {
-  Box,
-  BoxExtendedProps,
-  Card,
-  CardBody,
-  CardHeader,
-  Text,
-} from 'grommet'
+import { Box, Card, CardBody, CardHeader, Text } from 'grommet'
 import {
   BarElement,
   CategoryScale,
   Chart as ChartJS,
-  ChartData,
   Legend,
   LinearScale,
   Title,
@@ -21,14 +12,12 @@ import { Bar } from 'react-chartjs-2'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
-const CardWrapper: FC<BoxExtendedProps> = ({ direction = 'row', ...props }) => {
+const CardWrapper = ({ direction = 'row', ...props }) => {
   return <Box direction={direction} fill {...props} />
 }
 
-type GraphCardProps = {}
-
-const ChartCard: FC<GraphCardProps & BoxExtendedProps> = () => {
-  const data: ChartData<'bar'> = {
+const ChartCard = () => {
+  const data = {
     labels: ['First', 'Second'],
     datasets: [{ label: 'Hey!', data: [20, 10] }],
   }

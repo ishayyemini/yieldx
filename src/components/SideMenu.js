@@ -1,4 +1,3 @@
-import { FC } from 'react'
 import { Box, Button, Nav, Sidebar } from 'grommet'
 import * as Icons from 'grommet-icons'
 import styled from 'styled-components'
@@ -11,11 +10,10 @@ const NavButton = styled(Button).attrs({
   padding: 11px 22px;
   border-radius: 18px;
 
-  ${(props: { selected: boolean }) =>
-    props.selected ? 'background: var(--accent1);' : ''}
+  ${(props) => (props.selected ? 'background: var(--accent1);' : '')}
 `
 
-const SideMenu: FC = () => {
+const SideMenu = () => {
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
