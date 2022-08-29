@@ -2,8 +2,6 @@ import { useCallback, useEffect, useState } from 'react'
 import { Box, Grommet } from 'grommet'
 import { createGlobalStyle, css } from 'styled-components'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-
-import Dashboard from './components/Dashboard'
 import SideMenu from './components/SideMenu'
 import { db } from './data/db'
 import LabelTrolleys from './components/LabelTrolleys'
@@ -114,9 +112,12 @@ const App = () => {
               <>
                 <SideMenu signOut={signOut} />
                 <Routes>
-                  <Route path="/" element={<Dashboard />} />
+                  {/*<Route path="/" element={<Dashboard />} />*/}
                   <Route path="label-trolleys" element={<LabelTrolleys />} />
-                  <Route path={'*'} element={<Navigate replace to={'/'} />} />
+                  <Route
+                    path={'*'}
+                    element={<Navigate replace to={'/label-trolleys'} />}
+                  />
                 </Routes>
               </>
             ) : null}

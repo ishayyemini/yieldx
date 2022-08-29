@@ -49,8 +49,20 @@ const FormButtons = ({ submit, clear }) => (
     gap={'medium'}
     margin={{ top: 'large' }}
   >
-    {clear ? <Button label={'Reset'} type={'reset'} secondary /> : null}
-    {submit ? <Button label={'Submit'} type={'submit'} primary /> : null}
+    {clear ? (
+      <Button
+        label={typeof clear === 'string' ? clear : 'Reset'}
+        type={'reset'}
+        secondary
+      />
+    ) : null}
+    {submit ? (
+      <Button
+        label={typeof submit === 'string' ? submit : submit ?? 'Submit'}
+        type={'submit'}
+        primary
+      />
+    ) : null}
   </Box>
 )
 

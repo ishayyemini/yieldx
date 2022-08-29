@@ -38,7 +38,7 @@ const SignIn = ({ loadUser }) => {
             <TextInput {...register('user')} />
           </FormField>
 
-          <FormButtons submit clear />
+          <FormButtons submit={t('signIn.submit')} />
         </form>
       </Card>
 

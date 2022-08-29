@@ -14,6 +14,7 @@ i18n
         translation: {
           signIn: {
             header: 'Sign In',
+            submit: 'Sign In',
             ERR_USER_DOESNT_EXIST: "User doesn't exist",
             ERR_NETWORK: 'Network error',
           },

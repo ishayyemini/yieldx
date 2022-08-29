@@ -42,9 +42,9 @@ const SideMenu = ({ signOut }) => {
         }
       >
         <Nav gap={'xsmall'}>
-          <NavButton icon={<Icons.Fan />} label={'Parent Stock'} to={'/'} />
+          {/*<NavButton icon={<Icons.Fan />} label={'Parent Stock'} to={'/'} />*/}
           <NavButton
-            icon={<Icons.Car />}
+            icon={<Icons.Tag />}
             label={'Label Trolleys'}
             to={'/label-trolleys'}
           />
