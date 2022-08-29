@@ -4,7 +4,6 @@ service: lambdas
 
 frameworkVersion: '2 || 3'
 
-
 provider:
   name: aws
   runtime: nodejs16.x
@@ -35,4 +34,22 @@ functions:
                   "date" : "$input.params('date')",
                   "wh" : "$input.params('wh')",
                   "label" : "$input.params('label')"
+                }
+
+  check_user:
+    handler: check_user.default
+    events:
+      - http:
+          method: get
+          path: check-user
+          integration: lambda
+          cors: true
+          request:
+            parameters:
+              querystrings:
+                db: true
+            template:
+              application/json: |
+                { 
+                  "db" : "$input.params('db')"
                 }

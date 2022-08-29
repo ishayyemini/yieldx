@@ -14,6 +14,8 @@ i18n
         translation: {
           signIn: {
             header: 'Sign In',
+            ERR_USER_DOESNT_EXIST: "User doesn't exist",
+            ERR_NETWORK: 'Network error',
           },
           compactWH: {
             whName: 'Name',

@@ -1,8 +1,9 @@
 import { useCallback } from 'react'
 import { Box, Button, DateInput, FormField, Main, TextInput } from 'grommet'
 import { useForm } from 'react-hook-form'
-import queryString from 'query-string'
 import styled from 'styled-components'
+
+import API from '../data/API'
 
 const Wrapper = styled(Box).attrs({
   background: { light: 'brand' },
@@ -23,16 +24,7 @@ const LabelTrolleys = () => {
   const watchDate = watch('date')
 
   const onSubmit = useCallback((values) => {
-    fetch(
-      'https://ls72mt05m4.execute-api.us-east-1.amazonaws.com/dev/label-trolleys?' +
-        queryString.stringify({
-          ...values,
-          date: new Date(values.date).toISOString().slice(0, 10),
-          db: 'ishay',
-        })
-    )
-      .then((res) => res.json())
-      .then((res) => console.log(res))
+    API.labelTrolleys(values).then((res) => console.log(res))
   }, [])
 
   return (

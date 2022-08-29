@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Box, Grommet } from 'grommet'
 import { createGlobalStyle, css } from 'styled-components'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import Dashboard from './components/Dashboard'
 import SideMenu from './components/SideMenu'
@@ -9,6 +9,7 @@ import { db } from './data/db'
 import LabelTrolleys from './components/LabelTrolleys'
 import SignIn from './components/auth/SignIn'
 import GlobalContext from './components/app/GlobalContext'
+import API from './data/API'
 
 const GlobalStyle = createGlobalStyle`
   @font-face {
@@ -75,7 +76,12 @@ const App = () => {
     db.loadInitialData()
   }, [])
 
-  const login = useCallback(() => {
+  useEffect(() => {
+    API.configure({ user: globalState.user }, setGlobalState)
+  }, [globalState.user])
+
+  const loadUser = useCallback((user) => {
+    setGlobalState((old) => ({ ...old, user }))
     setAuthStage('loggedIn')
   }, [])
 
@@ -88,7 +94,8 @@ const App = () => {
 
             {authStage === 'signIn' ? (
               <Routes>
-                <Route path="/" element={<SignIn login={login} />} />
+                <Route path={'/'} element={<SignIn loadUser={loadUser} />} />
+                <Route path={'*'} element={<Navigate replace to={'/'} />} />
               </Routes>
             ) : null}
 
@@ -98,6 +105,7 @@ const App = () => {
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
                   <Route path="label-trolleys" element={<LabelTrolleys />} />
+                  <Route path={'*'} element={<Navigate replace to={'/'} />} />
                 </Routes>
               </>
             ) : null}

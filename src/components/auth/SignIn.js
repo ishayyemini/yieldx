@@ -1,23 +1,28 @@
-import { useCallback, useContext, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Card, FormField, Main, TextInput } from 'grommet'
 import { useForm } from 'react-hook-form'
 
-import GlobalContext from '../app/GlobalContext'
 import { CHeader, FormButtons, LoadingIndicator } from '../app/AppComponents'
+import API from '../../data/API'
 
-const SignIn = () => {
-  const { user } = useContext(GlobalContext)
-
+const SignIn = ({ loadUser }) => {
   const [loading, toggleLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const { t } = useTranslation()
 
   const { register, handleSubmit } = useForm({ defaultValues: { user: '' } })
 
-  const onSubmit = useCallback((values) => {
+  const onSubmit = useCallback(async ({ user }) => {
     toggleLoading(true)
-    console.log(values)
+    await API.login(user)
+      .then((exists) => {
+        if (exists) loadUser(user)
+        else setError('ERR_USER_DOESNT_EXIST')
+      })
+      .catch(() => setError('ERR_NETWORK'))
+      .finally(() => toggleLoading(false))
   }, [])
 
   return (
@@ -25,7 +30,11 @@ const SignIn = () => {
       <Card>
         <CHeader style={{ fontWeight: 'bold' }}>{t('signIn.header')}</CHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <FormField label={'Username'} required>
+          <FormField
+            label={'Username'}
+            error={error ? t(`signIn.${error}`) : ''}
+            required
+          >
             <TextInput {...register('user')} />
           </FormField>
 
