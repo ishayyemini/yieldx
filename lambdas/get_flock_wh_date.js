@@ -61,9 +61,15 @@ const get_flock_wh_date = async ({ db }) => {
             )
             .then((res) => {
               if (res.recordset)
-                flocks[fName][WH] = res.recordset.sort(
-                  (a, b) => a.LayingDate - b.LayingDate
-                )[0].LayingDate
+                flocks[fName][WH] = [
+                  ...new Set(
+                    res.recordset
+                      .sort((a, b) => a.LayingDate - b.LayingDate)
+                      .map(
+                        (item) => item.LayingDate.toISOString().split('T')[0]
+                      )
+                  ),
+                ]
             })
             .catch((e) => console.log(e))
         )

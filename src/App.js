@@ -64,6 +64,10 @@ const theme = {
       `,
     },
   },
+  checkBox: {
+    border: { color: 'accent-2' },
+    color: 'accent-2',
+  },
 }
 
 const App = () => {
