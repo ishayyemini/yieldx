@@ -5,13 +5,12 @@ const label_trolleys = async ({ db, flock, date, wh, label }) => {
   if (!db) throw Error('Missing DB')
   if (!label) throw Error('Missing label')
   if (!flock) throw Error('Missing flock name')
-  if (!date) throw Error('Missing date')
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw Error('Bad date format')
+  if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) throw Error('Bad date format')
 
   console.log(
-    `Looking for products after ${date} in flock ${flock} in warehouse ${
-      wh || 'ANY'
-    }`
+    `Looking for products${
+      date ? ' after ' + date : ''
+    } in flock ${flock} in warehouse ${wh || 'ANY'}`
   )
 
   const config = {
@@ -23,23 +22,26 @@ const label_trolleys = async ({ db, flock, date, wh, label }) => {
   }
   await sql.connect(config).catch((e) => console.log(e))
 
+  // Gather list of product IDs
   const products = await new sql.Request()
     .query(
       `
-  select ProdID from WHProdAmount
+  select wa1.ProdID, wa1.Amount, 
+  (select Name from Warehouses whs1 where whs1.UID = wa1.WHID) as "Warehouse",
+  (select (select Name from ProductTypes pt1 where p1.Type = pt1.UID) 
+    from Products p1 where p1.UID = wa1.ProdID) as "Type"
+  from WHProdAmount wa1
   where ${
     wh ? `WHID in (select UID from Warehouses where Name = '${wh}') and` : ''
   }
   ProdID in
       (select UID from Products
           where FlockID in (select UID from Flocks where Name = '${flock}') and
-          LayingDate >= '${date}' and
+          ${date ? ` LayingDate >= '${date}' and ` : ''}
           PlanningState = 0
       )`
     )
-    .then((res) => {
-      if (res.recordset) return res.recordset.map((item) => item.ProdID)
-    })
+    .then((res) => res.recordset ?? [])
     .catch((e) => console.log(e))
 
   sql.close()
@@ -55,10 +57,11 @@ const label_trolleys = async ({ db, flock, date, wh, label }) => {
     options
   )
 
+  // Send MQTT alerts
   await Promise.all(
-    products.map((id) =>
+    products.map((product) =>
       client.publish(
-        `yxtmmsg/${id}/label`,
+        `yxtmmsg/${product.ProdID}/label`,
         // TODO retain true!
         JSON.stringify({
           TS: Math.round(Date.now() / 1000),
@@ -71,7 +74,7 @@ const label_trolleys = async ({ db, flock, date, wh, label }) => {
   await client.end()
   console.log('Done')
 
-  return 'Done'
+  return products
 }
 
 module.exports.default = label_trolleys
