@@ -17,6 +17,7 @@ class APIClass {
   }
 
   async labelTrolleys({ label, flock, wh, date }) {
+    console.log(wh, date)
     return await fetch(
       'https://ls72mt05m4.execute-api.us-east-1.amazonaws.com/dev/label-trolleys?' +
         queryString.stringify({
@@ -26,6 +27,13 @@ class APIClass {
           date: new Date(date).toISOString().slice(0, 10),
           db: this._config.user,
         })
+    ).then((res) => res.json())
+  }
+
+  async getFlockWHDate() {
+    return await fetch(
+      'https://ls72mt05m4.execute-api.us-east-1.amazonaws.com/dev/get-flock-wh-date?' +
+        queryString.stringify({ db: this._config.user })
     ).then((res) => res.json())
   }
 }

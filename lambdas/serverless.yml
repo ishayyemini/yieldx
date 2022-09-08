@@ -53,3 +53,21 @@ functions:
                 { 
                   "db" : "$input.params('db')"
                 }
+
+  get_flock_wh_date:
+    handler: get_flock_wh_date.default
+    events:
+      - http:
+          method: get
+          path: get-flock-wh-date
+          integration: lambda
+          cors: true
+          request:
+            parameters:
+              querystrings:
+                db: true
+            template:
+              application/json: |
+                { 
+                  "db" : "$input.params('db')"
+                }

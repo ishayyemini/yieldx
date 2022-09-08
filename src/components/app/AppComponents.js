@@ -58,7 +58,7 @@ const FormButtons = ({ submit, clear }) => (
     ) : null}
     {submit ? (
       <Button
-        label={typeof submit === 'string' ? submit : submit ?? 'Submit'}
+        label={typeof submit === 'string' ? submit : 'Submit'}
         type={'submit'}
         primary
       />
