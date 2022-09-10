@@ -1,12 +1,16 @@
 import { useCallback, useContext, useEffect, useState } from 'react'
 import {
   Box,
+  Button,
   Card,
   CheckBox,
+  DataTable,
   DateInput,
   FormField,
+  Layer,
   Main,
   Select,
+  Text,
   TextInput,
 } from 'grommet'
 import { useForm } from 'react-hook-form'
@@ -37,6 +41,7 @@ const LabelTrolleys = () => {
 
   const [data, setData] = useState({})
   const [loading, toggleLoading] = useState(false)
+  const [result, setResult] = useState(null)
 
   const { register, handleSubmit, watch, setValue, reset } = useForm({
     defaultValues: {
@@ -70,9 +75,9 @@ const LabelTrolleys = () => {
         mqttAddress: settings.mqttAddress,
         mqttPort: settings.mqttPort,
       }).then((res) => {
+        setResult(res)
         toggleLoading(false)
         reset()
-        console.log(res)
       })
     },
     [reset, settings.mqttAddress, settings.mqttPort]
@@ -144,6 +149,32 @@ const LabelTrolleys = () => {
           <FormButtons submit clear />
         </form>
       </Card>
+
+      {result ? (
+        <Layer responsive={false}>
+          <Box align={'center'} gap={'small'} pad={'small'}>
+            <Text weight={'bold'}>
+              Successfully labelled trolleys: ({result.length} total)
+            </Text>
+
+            <Box height={{ max: '300px' }} overflow={'auto'}>
+              <DataTable
+                columns={[
+                  { property: 'Warehouse', header: 'Warehouse', primary: true },
+                  { property: 'Type', header: 'Type' },
+                  { property: 'Amount', header: 'Egg Count' },
+                ]}
+                sort={{ property: 'Amount', direction: 'desc' }}
+                background={{ header: 'white', body: ['white', 'light-2'] }}
+                primaryKey={'ProdID'}
+                data={result}
+              />
+            </Box>
+
+            <Button label={'Done'} onClick={() => setResult(null)} primary />
+          </Box>
+        </Layer>
+      ) : null}
 
       <LoadingIndicator loading={loading} />
     </Main>
