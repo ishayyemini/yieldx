@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Box, Grommet } from 'grommet'
+import { useCallback, useContext, useEffect, useState } from 'react'
+import { Box, Grommet, ResponsiveContext } from 'grommet'
 import { createGlobalStyle, css } from 'styled-components'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
@@ -71,7 +71,17 @@ const theme = {
   },
 }
 
+const GrommetWrapper = (Element) => () => {
+  return (
+    <Grommet theme={theme} full>
+      <Element />
+    </Grommet>
+  )
+}
+
 const App = () => {
+  const size = useContext(ResponsiveContext)
+
   const [globalState, setGlobalState] = useState({
     user: '',
     settings: {},
@@ -118,39 +128,37 @@ const App = () => {
   }, [])
 
   return (
-    <Grommet theme={theme} full>
-      <Box direction={'row'} fill>
-        <GlobalContext.Provider value={{ ...globalState, setGlobalState }}>
-          <BrowserRouter>
-            <GlobalStyle />
-            {authStage === 'loading' ? <LoadingIndicator loading /> : null}
+    <Box direction={size === 'small' ? 'column' : 'row'} fill>
+      <GlobalContext.Provider value={{ ...globalState, setGlobalState }}>
+        <BrowserRouter>
+          <GlobalStyle />
+          {authStage === 'loading' ? <LoadingIndicator loading /> : null}
 
-            {authStage === 'signIn' ? (
+          {authStage === 'signIn' ? (
+            <Routes>
+              <Route path={'/'} element={<SignIn signIn={signIn} />} />
+              <Route path={'*'} element={<Navigate replace to={'/'} />} />
+            </Routes>
+          ) : null}
+
+          {authStage === 'loggedIn' ? (
+            <>
+              <SideMenu signOut={signOut} />
               <Routes>
-                <Route path={'/'} element={<SignIn signIn={signIn} />} />
-                <Route path={'*'} element={<Navigate replace to={'/'} />} />
+                {/*<Route path="/" element={<Dashboard />} />*/}
+                <Route path={'label-trolleys'} element={<LabelTrolleys />} />
+                <Route path={'settings'} element={<Settings />} />
+                <Route
+                  path={'*'}
+                  element={<Navigate replace to={'/label-trolleys'} />}
+                />
               </Routes>
-            ) : null}
-
-            {authStage === 'loggedIn' ? (
-              <>
-                <SideMenu signOut={signOut} />
-                <Routes>
-                  {/*<Route path="/" element={<Dashboard />} />*/}
-                  <Route path={'label-trolleys'} element={<LabelTrolleys />} />
-                  <Route path={'settings'} element={<Settings />} />
-                  <Route
-                    path={'*'}
-                    element={<Navigate replace to={'/label-trolleys'} />}
-                  />
-                </Routes>
-              </>
-            ) : null}
-          </BrowserRouter>
-        </GlobalContext.Provider>
-      </Box>
-    </Grommet>
+            </>
+          ) : null}
+        </BrowserRouter>
+      </GlobalContext.Provider>
+    </Box>
   )
 }
 
-export default App
+export default GrommetWrapper(App)

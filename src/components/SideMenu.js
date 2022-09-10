@@ -1,7 +1,8 @@
-import { Box, Button, Nav, Sidebar } from 'grommet'
+import { Box, Button, Nav, ResponsiveContext, Sidebar } from 'grommet'
 import * as Icons from 'grommet-icons'
 import styled from 'styled-components'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useContext } from 'react'
 
 const NavButtonStyled = styled(Button).attrs({
   plain: true,
@@ -30,21 +31,29 @@ const NavButton = ({ to, ...props }) => {
 }
 
 const SideMenu = ({ signOut }) => {
+  const size = useContext(ResponsiveContext)
+
+  const footerElements = (
+    <>
+      <NavButton icon={<Icons.Logout />} label={'Sign Out'} onClick={signOut} />
+    </>
+  )
+
   return (
-    <Box pad={'small'} flex={false}>
+    <Box pad={'small'} flex={false} style={{ position: 'sticky', top: 0 }}>
       <Sidebar
         round={'small'}
         background={'var(--main)'}
         gap={'medium'}
-        footer={
-          <NavButton
-            icon={<Icons.Logout />}
-            label={'Sign Out'}
-            onClick={signOut}
-          />
-        }
+        direction={size === 'small' ? 'row' : 'column'}
+        overflow={'auto'}
+        footer={size !== 'small' ? footerElements : null}
       >
-        <Nav gap={'xsmall'}>
+        <Nav
+          direction={size === 'small' ? 'row' : 'column'}
+          overflow={'auto'}
+          gap={'xsmall'}
+        >
           {/*<NavButton icon={<Icons.Fan />} label={'Parent Stock'} to={'/'} />*/}
           <NavButton
             icon={<Icons.Tag />}
@@ -56,6 +65,7 @@ const SideMenu = ({ signOut }) => {
             label={'Settings'}
             to={'/settings'}
           />
+          {size === 'small' ? footerElements : null}
         </Nav>
       </Sidebar>
     </Box>
