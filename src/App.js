@@ -2,12 +2,14 @@ import { useCallback, useEffect, useState } from 'react'
 import { Box, Grommet } from 'grommet'
 import { createGlobalStyle, css } from 'styled-components'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+
 import SideMenu from './components/SideMenu'
-import { db } from './data/db'
 import LabelTrolleys from './components/LabelTrolleys'
 import SignIn from './components/auth/SignIn'
 import GlobalContext from './components/app/GlobalContext'
 import API from './data/API'
+import Settings from './components/Settings'
+import { LoadingIndicator } from './components/app/AppComponents'
 
 const GlobalStyle = createGlobalStyle`
   @font-face {
@@ -41,9 +43,8 @@ const theme = {
       background: { light: 'brand', dark: 'dark-1' },
       margin: 'small',
       pad: 'small',
-      round: 'medium',
+      round: 'small',
       elevation: 'none',
-      border: { color: { light: 'light-5' }, size: 'small' },
     },
     header: {
       margin: { bottom: 'small' },
@@ -72,28 +73,46 @@ const theme = {
 
 const App = () => {
   const [globalState, setGlobalState] = useState({
-    user: localStorage.getItem('user') ?? '',
+    user: '',
+    settings: {},
   })
-  const [authStage, setAuthStage] = useState(
-    globalState.user ? 'loggedIn' : 'signIn'
-  )
+  const [authStage, setAuthStage] = useState('loading')
 
-  useEffect(() => {
-    db.loadInitialData()
+  // Load user from API on login/start
+  const loadUser = useCallback(async () => {
+    await API.loadUser()
   }, [])
 
+  // On start
   useEffect(() => {
-    API.configure({ user: globalState.user }, setGlobalState)
-  }, [globalState.user])
-
-  const loadUser = useCallback((user) => {
-    localStorage.setItem('user', user)
+    const user = localStorage.getItem('user') ?? ''
     setGlobalState((old) => ({ ...old, user }))
-    setAuthStage('loggedIn')
-  }, [])
+    API.configure({ user }, setGlobalState)
+
+    // Check if logged in
+    if (user) {
+      loadUser().then(() => setAuthStage('loggedIn'))
+    } else {
+      setAuthStage('signIn')
+    }
+  }, [loadUser])
+
+  // After auth sign in
+  const signIn = useCallback(
+    async (user) => {
+      localStorage.setItem('user', user)
+      setGlobalState((old) => ({ ...old, user }))
+      API.configure({ user })
+
+      await loadUser()
+      setAuthStage('loggedIn')
+    },
+    [loadUser]
+  )
 
   const signOut = useCallback(() => {
     localStorage.setItem('user', '')
+    localStorage.setItem('settings', '')
     setGlobalState({ user: '' })
     setAuthStage('signIn')
   }, [])
@@ -104,10 +123,11 @@ const App = () => {
         <GlobalContext.Provider value={{ ...globalState, setGlobalState }}>
           <BrowserRouter>
             <GlobalStyle />
+            {authStage === 'loading' ? <LoadingIndicator loading /> : null}
 
             {authStage === 'signIn' ? (
               <Routes>
-                <Route path={'/'} element={<SignIn loadUser={loadUser} />} />
+                <Route path={'/'} element={<SignIn signIn={signIn} />} />
                 <Route path={'*'} element={<Navigate replace to={'/'} />} />
               </Routes>
             ) : null}
@@ -117,7 +137,8 @@ const App = () => {
                 <SideMenu signOut={signOut} />
                 <Routes>
                   {/*<Route path="/" element={<Dashboard />} />*/}
-                  <Route path="label-trolleys" element={<LabelTrolleys />} />
+                  <Route path={'label-trolleys'} element={<LabelTrolleys />} />
+                  <Route path={'settings'} element={<Settings />} />
                   <Route
                     path={'*'}
                     element={<Navigate replace to={'/label-trolleys'} />}

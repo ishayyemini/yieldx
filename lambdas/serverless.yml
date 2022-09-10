@@ -26,6 +26,7 @@ functions:
                 date: true
                 wh: false
                 label: true
+                mqtt: false
             template:
               application/json: |
                 { 
@@ -33,7 +34,8 @@ functions:
                   "flock" : "$input.params('flock')",
                   "date" : "$input.params('date')",
                   "wh" : "$input.params('wh')",
-                  "label" : "$input.params('label')"
+                  "label" : "$input.params('label')",
+                  "mqtt" : "$input.params('mqtt')"
                 }
 
   check_user:

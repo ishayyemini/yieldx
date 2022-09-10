@@ -9,8 +9,11 @@ const NavButtonStyled = styled(Button).attrs({
 })`
   padding: 11px 22px;
   border-radius: 18px;
-
   ${(props) => (props.selected ? 'background: var(--accent1);' : '')}
+
+  > div {
+    justify-content: start;
+  }
 `
 
 const NavButton = ({ to, ...props }) => {
@@ -47,6 +50,11 @@ const SideMenu = ({ signOut }) => {
             icon={<Icons.Tag />}
             label={'Label Trolleys'}
             to={'/label-trolleys'}
+          />
+          <NavButton
+            icon={<Icons.SettingsOption />}
+            label={'Settings'}
+            to={'/settings'}
           />
         </Nav>
       </Sidebar>

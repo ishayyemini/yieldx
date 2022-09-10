@@ -1,7 +1,14 @@
 const sql = require('mssql')
 const mqtt = require('async-mqtt')
 
-const label_trolleys = async ({ db, flock, date, wh, label }) => {
+const label_trolleys = async ({
+  db,
+  flock,
+  date,
+  wh,
+  label,
+  mqtt: mqttUrl,
+}) => {
   if (!db) throw Error('Missing DB')
   if (!label) throw Error('Missing label')
   if (!flock) throw Error('Missing flock name')
@@ -53,8 +60,12 @@ const label_trolleys = async ({ db, flock, date, wh, label }) => {
     connectTimeout: 4000,
   }
   const client = await mqtt.connectAsync(
-    'mqtt://broker.mqttdashboard.com:1883',
+    mqttUrl || 'mqtt://broker.mqttdashboard.com:1883',
     options
+  )
+
+  console.log(
+    `Sending MQTT to ${mqttUrl || 'mqtt://broker.mqttdashboard.com:1883'}`
   )
 
   // Send MQTT alerts

@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import {
   Box,
+  Card,
   CheckBox,
   DateInput,
   FormField,
@@ -9,16 +10,10 @@ import {
   TextInput,
 } from 'grommet'
 import { useForm } from 'react-hook-form'
-import styled from 'styled-components'
 
 import API from '../data/API'
 import { FormButtons, LoadingIndicator } from './app/AppComponents'
-
-const Wrapper = styled(Box).attrs({
-  background: { light: 'brand' },
-  pad: 'small',
-  round: 'small',
-})``
+import GlobalContext from './app/GlobalContext'
 
 const diffDays = (a, b) => {
   const aDate = new Date(a)
@@ -38,6 +33,8 @@ const genDates = (from, till, except) => {
 }
 
 const LabelTrolleys = () => {
+  const { settings } = useContext(GlobalContext)
+
   const [data, setData] = useState({})
   const [loading, toggleLoading] = useState(false)
 
@@ -70,26 +67,28 @@ const LabelTrolleys = () => {
         flock,
         wh: wh === 'All' ? null : wh,
         date: filterDate ? date : null,
+        mqttAddress: settings.mqttAddress,
+        mqttPort: settings.mqttPort,
       }).then((res) => {
         toggleLoading(false)
         reset()
         console.log(res)
       })
     },
-    [reset]
+    [reset, settings.mqttAddress, settings.mqttPort]
   )
 
   return (
     <Main align={'center'} justify={'center'}>
-      <Wrapper>
+      <Card>
         <form onSubmit={handleSubmit(onSubmit)} onReset={() => reset()}>
           <FormField label={'Text to display on trolley *'} required>
-            <TextInput {...register('label')} />
+            <TextInput {...register('label', { required: true })} />
           </FormField>
           <FormField label={'Flock *'} required>
             <Select
               options={Object.keys(data)}
-              {...register('flock')}
+              {...register('flock', { required: true })}
               onChange={(e) => setValue('flock', e.target.value)}
               value={watchFlock}
               placeholder={'Choose flock'}
@@ -144,7 +143,7 @@ const LabelTrolleys = () => {
 
           <FormButtons submit clear />
         </form>
-      </Wrapper>
+      </Card>
 
       <LoadingIndicator loading={loading} />
     </Main>

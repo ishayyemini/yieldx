@@ -11,6 +11,7 @@ import {
 } from 'chart.js'
 import { Bar } from 'react-chartjs-2'
 import { MutatingDots } from 'react-loader-spinner'
+import { useEffect, useState } from 'react'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
@@ -42,29 +43,40 @@ const CHeader = styled(CardHeader)`
   height: 1.5em;
 `
 
-const FormButtons = ({ submit, clear }) => (
-  <Box
-    justify={'center'}
-    direction={'row'}
-    gap={'medium'}
-    margin={{ top: 'large' }}
-  >
-    {clear ? (
-      <Button
-        label={typeof clear === 'string' ? clear : 'Reset'}
-        type={'reset'}
-        secondary
-      />
-    ) : null}
-    {submit ? (
-      <Button
-        label={typeof submit === 'string' ? submit : 'Submit'}
-        type={'submit'}
-        primary
-      />
-    ) : null}
-  </Box>
-)
+const FormButtons = ({ submit, clear, submitCount }) => {
+  const [oldCount, setOldCount] = useState(submitCount)
+  const [submitted, toggleSubmitted] = useState(false)
+
+  useEffect(() => {
+    if (submitCount > oldCount) {
+      setOldCount(submitCount)
+      toggleSubmitted(true)
+      setTimeout(() => toggleSubmitted(false), 1000)
+    }
+  }, [submitCount, oldCount])
+
+  let submitLabel = 'Submit'
+  if (typeof submit === 'string') submitLabel = submit
+  else if (Array.isArray(submit)) submitLabel = submit[submitted ? 1 : 0]
+
+  return (
+    <Box
+      justify={'center'}
+      direction={'row'}
+      gap={'medium'}
+      margin={{ top: 'large' }}
+    >
+      {clear ? (
+        <Button
+          label={typeof clear === 'string' ? clear : 'Reset'}
+          type={'reset'}
+          secondary
+        />
+      ) : null}
+      {submit ? <Button label={submitLabel} type={'submit'} primary /> : null}
+    </Box>
+  )
+}
 
 const LoadingIndicator = ({ loading, overlay = true }) => {
   const element = (
@@ -79,7 +91,9 @@ const LoadingIndicator = ({ loading, overlay = true }) => {
 
   return loading ? (
     overlay ? (
-      <Layer background={'transparent'}>{element}</Layer>
+      <Layer background={'transparent'} responsive={false}>
+        {element}
+      </Layer>
     ) : (
       element
     )
