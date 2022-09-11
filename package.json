@@ -38,6 +38,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "deploy": "npm ci && react-scripts build && aws s3 sync ./build s3://yieldx-test-website --acl public-read --follow-symlinks --delete --profile yieldx",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
