@@ -54,7 +54,11 @@ const SideMenu = ({ signOut }) => {
           overflow={'auto'}
           gap={'xsmall'}
         >
-          {/*<NavButton icon={<Icons.Fan />} label={'Parent Stock'} to={'/'} />*/}
+          <NavButton
+            icon={<Icons.Dashboard />}
+            label={'Parent Stock'}
+            to={'/'}
+          />
           <NavButton
             icon={<Icons.Tag />}
             label={'Label Trolleys'}

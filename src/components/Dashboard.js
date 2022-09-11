@@ -1,12 +1,18 @@
-import { useLiveQuery } from 'dexie-react-hooks'
-
-import { db } from '../data/db'
+import { useEffect, useRef } from 'react'
 import { Box } from 'grommet'
+
+import API from '../data/API'
 import WarehouseWidget from './app/WarehouseWidget'
 
 const Dashboard = () => {
-  const warehouses = useLiveQuery(() => db.Warehouses?.toArray())
-  const whAmounts = useLiveQuery(() => db.WHProdAmount?.toArray())
+  const lastFetched = useRef('')
+
+  useEffect(() => {
+    API.getWHAmounts({ lastFetched: lastFetched.current }).then((res) => {
+      lastFetched.current = new Date().toISOString()
+      console.log(res)
+    })
+  }, [])
 
   const whHouse = [
     {

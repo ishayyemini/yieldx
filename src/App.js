@@ -10,6 +10,7 @@ import GlobalContext from './components/app/GlobalContext'
 import API from './data/API'
 import Settings from './components/Settings'
 import { LoadingIndicator } from './components/app/AppComponents'
+import Dashboard from './components/Dashboard'
 
 const GlobalStyle = createGlobalStyle`
   @font-face {
@@ -145,7 +146,7 @@ const App = () => {
             <>
               <SideMenu signOut={signOut} />
               <Routes>
-                {/*<Route path="/" element={<Dashboard />} />*/}
+                <Route path={'/'} element={<Dashboard />} />
                 <Route path={'label-trolleys'} element={<LabelTrolleys />} />
                 <Route path={'settings'} element={<Settings />} />
                 <Route
