@@ -35,6 +35,7 @@ const label_trolleys = async ({
       `
   select wa1.ProdID, wa1.Amount, 
   (select Name from Warehouses whs1 where whs1.UID = wa1.WHID) as "Warehouse",
+  (select TrolleyUID from Products p1 where p1.UID = wa1.ProdID) as "TrolleyUID",
   (select (select Name from ProductTypes pt1 where p1.Type = pt1.UID) 
     from Products p1 where p1.UID = wa1.ProdID) as "Type"
   from WHProdAmount wa1
@@ -72,13 +73,13 @@ const label_trolleys = async ({
   await Promise.all(
     products.map((product) =>
       client.publish(
-        `yxtmmsg/${product.ProdID}/label`,
-        // TODO retain true!
+        `yxtmmsg/${product.TrolleyUID}/Beep`,
         JSON.stringify({
           TS: Math.round(Date.now() / 1000),
-          Label: label,
+          AlertMessage: label,
           RelObject: 2,
-        })
+        }),
+        { retain: true }
       )
     )
   )
