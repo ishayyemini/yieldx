@@ -72,11 +72,10 @@ const label_trolleys = async ({
   await Promise.all(
     products.map((product) =>
       client.publish(
-        `yxtmmsg/${product.ProdID}/label`,
-        // TODO retain true!
+        `yxtmmsg/${product.ProdID}/Beep`,
         JSON.stringify({
           TS: Math.round(Date.now() / 1000),
-          Label: label,
+          AlertMessage: label,
           RelObject: 2,
         })
       )
