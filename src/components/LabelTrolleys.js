@@ -14,6 +14,9 @@ import {
   TextInput,
 } from 'grommet'
 import { useForm } from 'react-hook-form'
+import * as yup from 'yup'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { useTranslation } from 'react-i18next'
 
 import API from '../data/API'
 import { FormButtons, LoadingIndicator } from './app/AppComponents'
@@ -43,14 +46,34 @@ const LabelTrolleys = () => {
   const [loading, toggleLoading] = useState(false)
   const [result, setResult] = useState(null)
 
-  const { register, handleSubmit, watch, setValue, reset } = useForm({
+  const { t } = useTranslation(null, { keyPrefix: 'labelTrolleys' })
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
       flock: '',
-      label: '',
+      label1: '',
+      label2: '',
       wh: '',
       filterDate: false,
       date: new Date().toISOString().split('T')[0],
     },
+    resolver: yupResolver(
+      yup.object({
+        label1: yup
+          .string()
+          .required(t('errors.label1.required'))
+          .max(39, t('errors.label1.max')),
+        label2: yup.string().max(39, t('errors.label2.max')),
+        flock: yup.string().required(t('errors.flock.required')),
+      })
+    ),
   })
 
   const watchDate = watch('date')
@@ -65,12 +88,13 @@ const LabelTrolleys = () => {
   }, [])
 
   const onSubmit = useCallback(
-    ({ label, flock, wh, date, filterDate }) => {
+    ({ label1, label2, flock, wh, date, filterDate }) => {
       toggleLoading(true)
       API.labelTrolleys({
-        label,
+        label1,
+        label2,
         flock,
-        wh: wh === 'All' ? null : wh,
+        wh: wh === t('all') ? null : wh,
         date: filterDate ? date : null,
         mqttAddress: settings.mqttAddress,
         mqttPort: settings.mqttPort,
@@ -87,39 +111,43 @@ const LabelTrolleys = () => {
     <Main align={'center'} justify={'center'}>
       <Card>
         <form onSubmit={handleSubmit(onSubmit)} onReset={() => reset()}>
-          <FormField label={'Text to display on trolley *'} required>
-            <TextInput {...register('label', { required: true })} />
+          <FormField label={t('label') + ' *'} error={errors.label1?.message}>
+            <TextInput {...register('label1')} />
           </FormField>
-          <FormField label={'Flock *'} required>
+          <FormField error={errors.label2?.message}>
+            <TextInput {...register('label2', { maxLength: 39 })} />
+          </FormField>
+          <FormField
+            label={t('flock.label') + ' *'}
+            error={errors.flock?.message}
+          >
             <Select
               options={Object.keys(data)}
               {...register('flock', { required: true })}
               onChange={(e) => setValue('flock', e.target.value)}
               value={watchFlock}
-              placeholder={'Choose flock'}
+              placeholder={t('flock.placeholder')}
             />
           </FormField>
-          <FormField label={'Warehouse'}>
+          <FormField label={t('wh.label')}>
             <Select
               options={['All', ...Object.keys(data[watchFlock] ?? {})]}
               {...register('wh')}
               onChange={(e) => setValue('wh', e.target.value)}
               value={watchWH}
               disabled={!watchFlock}
-              placeholder={
-                watchFlock ? 'Choose warehouse' : 'First choose flock'
-              }
+              placeholder={t(`wh.placeholder.${watchFlock ? 1 : 0}`)}
             />
           </FormField>
           <Box direction={'row'} pad={'small'} gap={'medium'}>
-            Filter by date?
+            {t('filterDate')}
             <CheckBox
               {...register('filterDate')}
               checked={watchFilterDate}
               disabled={!watchFlock}
             />
           </Box>
-          <FormField label={'Date (mm/dd/yyyy)'}>
+          <FormField label={t('date') + ' (mm/dd/yyyy)'}>
             <DateInput
               {...register('date')}
               format={'mm/dd/yyyy'}
@@ -154,7 +182,7 @@ const LabelTrolleys = () => {
         <Layer responsive={false}>
           <Box align={'center'} gap={'small'} pad={'small'}>
             <Text weight={'bold'}>
-              Successfully labelled trolleys: ({result.length} total)
+              {t('success', { trolleys: result.length })}
             </Text>
 
             <Box height={{ max: '300px' }} overflow={'auto'}>
@@ -171,7 +199,11 @@ const LabelTrolleys = () => {
               />
             </Box>
 
-            <Button label={'Done'} onClick={() => setResult(null)} primary />
+            <Button
+              label={t('successButton')}
+              onClick={() => setResult(null)}
+              primary
+            />
           </Box>
         </Layer>
       ) : null}

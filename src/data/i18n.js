@@ -35,6 +35,31 @@ i18n
             garbage: 'Garbage',
             unknown: 'Unknown',
           },
+          labelTrolleys: {
+            all: 'All',
+            label: 'Text to display on trolley',
+            flock: { label: 'Flock', placeholder: 'Choose flock' },
+            wh: {
+              label: 'Warehouse',
+              placeholder: ['First choose flock', 'Choose warehouse'],
+            },
+            filterDate: 'Filter by date?',
+            date: 'Date',
+            success: 'Successfully labelled trolleys: ({{trolleys}} total)',
+            successButton: 'Done',
+            errors: {
+              label1: {
+                required: 'First line of label is a required field',
+                max: 'First line of label must be at most 39 characters',
+              },
+              label2: {
+                max: 'Second line of label must be at most 39 characters',
+              },
+              flock: {
+                required: 'Flock is a required field',
+              },
+            },
+          },
         },
       },
     },
