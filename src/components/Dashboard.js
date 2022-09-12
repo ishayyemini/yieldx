@@ -5,6 +5,15 @@ import API from '../data/API'
 import WarehouseWidget from './app/WarehouseWidget'
 
 const Dashboard = () => {
+  /*
+  What do we need to see here?
+  Main page - warehouses, for each type display a chart - bar chart with total
+  eggs and eggs today, and over it a line chart with sensor data.
+  When clicking on any bar, we should expand to WarehouseView - what shall this
+  entail?
+  How often should this be updated? Indication of last update? Manual update?
+   */
+
   const lastFetched = useRef('')
 
   useEffect(() => {
