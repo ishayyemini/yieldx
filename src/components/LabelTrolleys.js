@@ -3,9 +3,7 @@ import {
   Box,
   Button,
   Card,
-  CheckBox,
   DataTable,
-  DateInput,
   FormField,
   Layer,
   Main,
@@ -22,27 +20,24 @@ import API from '../data/API'
 import { FormButtons, LoadingIndicator } from './app/AppComponents'
 import GlobalContext from './app/GlobalContext'
 
-const diffDays = (a, b) => {
-  const aDate = new Date(a)
-  const bDate = new Date(b)
-  aDate.setHours(0, 0, 0, 0)
-  bDate.setHours(0, 0, 0, 0)
-  return Math.abs((aDate - bDate) / (1000 * 60 * 60 * 24))
-}
-
-const genDates = (from, till, except) => {
-  const thisDate = new Date(from)
-  thisDate.setDate(thisDate.getDate() - 1)
-  return Array.from({ length: diffDays(from, till) + 1 }, () => {
-    thisDate.setDate(thisDate.getDate() + 1)
-    return thisDate.toISOString().split('T')[0]
-  }).filter((date) => !except.includes(date))
-}
+const parseData = (data, idKey, nameKey, filterBy) => [
+  ...new Map(
+    data
+      .filter(
+        (item) =>
+          !filterBy ||
+          Object.entries(filterBy).every(
+            ([key, value]) => !value || item[key] === value
+          )
+      )
+      .map((item) => [item[idKey], { name: item[nameKey], ID: item[idKey] }])
+  ).values(),
+]
 
 const LabelTrolleys = () => {
   const { settings } = useContext(GlobalContext)
 
-  const [data, setData] = useState({})
+  const [data, setData] = useState([])
   const [loading, toggleLoading] = useState(false)
   const [result, setResult] = useState(null)
 
@@ -57,12 +52,14 @@ const LabelTrolleys = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      flock: '',
       label1: '',
       label2: '',
-      wh: '',
-      filterDate: false,
-      date: new Date().toISOString().split('T')[0],
+      flock: { name: '', ID: '' },
+      sourceWH: { name: '', ID: '' },
+      destWH: { name: '', ID: '' },
+      rolling: 0,
+      // filterDate: false,
+      // date: new Date().toISOString().split('T')[0],
     },
     resolver: yupResolver(
       yup.object({
@@ -71,15 +68,12 @@ const LabelTrolleys = () => {
           .required(t('errors.label1.required'))
           .max(39, t('errors.label1.max')),
         label2: yup.string().max(39, t('errors.label2.max')),
-        flock: yup.string().required(t('errors.flock.required')),
+        // flock: yup.string().required(t('errors.flock.required')),
       })
     ),
   })
 
-  const watchDate = watch('date')
-  const watchFilterDate = watch('filterDate')
-  const watchFlock = watch('flock')
-  const watchWH = watch('wh')
+  const values = watch()
 
   useEffect(() => {
     API.getFlockWHDate()
@@ -88,24 +82,60 @@ const LabelTrolleys = () => {
   }, [])
 
   const onSubmit = useCallback(
-    ({ label1, label2, flock, wh, date, filterDate }) => {
+    (values) => {
       toggleLoading(true)
-      API.labelTrolleys({
-        label1,
-        label2,
-        flock,
-        wh: wh === t('all') ? null : wh,
-        date: filterDate ? date : null,
+
+      const earliest = new Date(
+        data
+          .filter(
+            (item) =>
+              item.FlockID === values.flock.ID &&
+              item.SourceID === values.sourceWH.ID &&
+              item.DestID === values.destWH.ID
+          )
+          .map((item) => item.EarliestLaying)
+          .sort()[0]
+      )
+      earliest.setDate(earliest.getDate() + Number(values.rolling))
+
+      console.log({
+        label1: values.label1,
+        label2: values.label2,
+        flock: values.flock.ID,
+        sourceWH: values.sourceWH.ID,
+        destWH: values.destWH.ID,
+        date: earliest,
+        rolling: Number(values.rolling),
         mqttAddress: settings.mqttAddress,
         mqttPort: settings.mqttPort,
-      }).then((res) => {
-        setResult(res)
-        toggleLoading(false)
-        reset()
       })
+      // console.log(data.filter(item => ite))
+      // API.labelTrolleys({
+      //   label1: values.label1,
+      //   label2: values.label2,
+      //   flock: values.flock.ID,
+      //   wh: wh === t('all') ? null : wh,
+      //   date: filterDate ? date : null,
+      //   mqttAddress: settings.mqttAddress,
+      //   mqttPort: settings.mqttPort,
+      // }).then((res) => {
+      //   setResult(res)
+      toggleLoading(false)
+      //   reset()
+      // })
     },
-    [reset, settings.mqttAddress, settings.mqttPort]
+    [data, settings.mqttAddress, settings.mqttPort]
   )
+
+  const flocks = parseData(data, 'FlockID', 'FlockName')
+  const sourceWHs = parseData(data, 'SourceID', 'SourceName', {
+    FlockID: values.flock.ID,
+    DestID: values.destWH.ID,
+  })
+  const destWHs = parseData(data, 'DestID', 'DestName', {
+    FlockID: values.flock.ID,
+    SourceID: values.sourceWH.ID,
+  })
 
   return (
     <Main align={'center'} justify={'center'}>
@@ -122,57 +152,77 @@ const LabelTrolleys = () => {
             error={errors.flock?.message}
           >
             <Select
-              options={Object.keys(data)}
-              {...register('flock', { required: true })}
-              onChange={(e) => setValue('flock', e.target.value)}
-              value={watchFlock}
+              options={flocks}
+              onChange={(e) => setValue('flock', e.option)}
+              value={values.flock}
+              labelKey={'name'}
+              valueKey={'ID'}
               placeholder={t('flock.placeholder')}
             />
           </FormField>
-          <FormField label={t('wh.label')}>
+          <FormField label={t('sourceWH.label')}>
             <Select
-              options={['All', ...Object.keys(data[watchFlock] ?? {})]}
-              {...register('wh')}
-              onChange={(e) => setValue('wh', e.target.value)}
-              value={watchWH}
-              disabled={!watchFlock}
-              placeholder={t(`wh.placeholder.${watchFlock ? 1 : 0}`)}
+              options={sourceWHs}
+              onChange={(e) => setValue('sourceWH', e.option)}
+              value={values.sourceWH}
+              labelKey={'name'}
+              valueKey={'ID'}
+              placeholder={t('sourceWH.placeholder')}
+              disabled={!values.flock.ID}
             />
           </FormField>
-          <Box direction={'row'} pad={'small'} gap={'medium'}>
-            {t('filterDate')}
-            <CheckBox
-              {...register('filterDate')}
-              checked={watchFilterDate}
-              disabled={!watchFlock}
-            />
-          </Box>
-          <FormField label={t('date') + ' (mm/dd/yyyy)'}>
-            <DateInput
-              {...register('date')}
-              format={'mm/dd/yyyy'}
-              value={watchDate}
-              onChange={({ value }) => {
-                if (typeof value === 'string') setValue('date', value)
-                else if (typeof value === 'object') setValue('date', value[0])
-              }}
-              calendarProps={{
-                bounds: data[watchFlock]?.[watchWH]
-                  ? [data[watchFlock][watchWH][0], new Date().toISOString()]
-                  : null,
-                range: false,
-                disabled: data[watchFlock]?.[watchWH]
-                  ? genDates(
-                      data[watchFlock][watchWH][0],
-                      new Date(),
-                      data[watchFlock][watchWH]
-                    )
-                  : null,
-              }}
-              dropProps={{ align: { bottom: 'top', left: 'left' } }}
-              disabled={!watchFilterDate}
+          <FormField label={t('destWH.label')}>
+            <Select
+              options={destWHs}
+              onChange={(e) => setValue('destWH', e.option)}
+              value={values.destWH}
+              labelKey={'name'}
+              valueKey={'ID'}
+              placeholder={t('destWH.placeholder')}
+              disabled={!values.flock.ID}
             />
           </FormField>
+          <FormField label={t('rolling')}>
+            <TextInput
+              {...register('rolling')}
+              disabled={!values.flock.ID}
+              type={'number'}
+            />
+          </FormField>
+          {/*<Box direction={'row'} pad={'small'} gap={'medium'}>*/}
+          {/*  {t('filterDate')}*/}
+          {/*  <CheckBox*/}
+          {/*    {...register('filterDate')}*/}
+          {/*    checked={values.filterDate}*/}
+          {/*    disabled={!values.flock.ID}*/}
+          {/*  />*/}
+          {/*</Box>*/}
+          {/*<FormField label={t('date') + ' (mm/dd/yyyy)'}>*/}
+          {/*  <DateInput*/}
+          {/*    {...register('date')}*/}
+          {/*    format={'mm/dd/yyyy'}*/}
+          {/*    value={values.date}*/}
+          {/*    onChange={({ value }) => {*/}
+          {/*      if (typeof value === 'string') setValue('date', value)*/}
+          {/*      else if (typeof value === 'object') setValue('date', value[0])*/}
+          {/*    }}*/}
+          {/*    calendarProps={{*/}
+          {/*      bounds: data[watchFlock]?.[watchWH]*/}
+          {/*        ? [data[watchFlock][watchWH][0], new Date().toISOString()]*/}
+          {/*        : null,*/}
+          {/*      range: false,*/}
+          {/*      disabled: data[watchFlock]?.[watchWH]*/}
+          {/*        ? genDates(*/}
+          {/*            data[watchFlock][watchWH][0],*/}
+          {/*            new Date(),*/}
+          {/*            data[watchFlock][watchWH]*/}
+          {/*          )*/}
+          {/*        : null,*/}
+          {/*    }}*/}
+          {/*    dropProps={{ align: { bottom: 'top', left: 'left' } }}*/}
+          {/*    disabled={!watchFilterDate}*/}
+          {/*  />*/}
+          {/*</FormField>*/}
 
           <FormButtons submit clear />
         </form>

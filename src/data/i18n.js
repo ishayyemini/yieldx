@@ -39,10 +39,16 @@ i18n
             all: 'All',
             label: 'Text to display on trolley',
             flock: { label: 'Flock', placeholder: 'Choose flock' },
-            wh: {
-              label: 'Warehouse',
-              placeholder: ['First choose flock', 'Choose warehouse'],
+            sourceWH: {
+              label: 'Source warehouse',
+              placeholder: 'Choose warehouse',
             },
+            destWH: {
+              label: 'Destination warehouse',
+              placeholder: 'Choose warehouse',
+            },
+            rolling: 'Rolling days (older than)',
+
             filterDate: 'Filter by date?',
             date: 'Date',
             success: 'Successfully labelled trolleys: ({{trolleys}} total)',

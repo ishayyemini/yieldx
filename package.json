@@ -11,7 +11,7 @@
     "chart.js": "^3.9.1",
     "dexie": "^3.2.2",
     "dexie-react-hooks": "^1.1.1",
-    "grommet": "^2.25.1",
+    "grommet": "^2.25.3",
     "grommet-icons": "^4.7.0",
     "i18next": "^21.9.1",
     "i18next-browser-languagedetector": "^6.1.5",
