@@ -25,7 +25,8 @@ functions:
                 flock: true
                 date: true
                 wh: false
-                label: true
+                label1: true
+                label2: false
                 mqtt: false
             template:
               application/json: |
@@ -34,7 +35,8 @@ functions:
                   "flock" : "$input.params('flock')",
                   "date" : "$input.params('date')",
                   "wh" : "$input.params('wh')",
-                  "label" : "$input.params('label')",
+                  "label1" : "$input.params('label1')",
+                  "label2" : "$input.params('label2')",
                   "mqtt" : "$input.params('mqtt')"
                 }
 

@@ -45,11 +45,20 @@ class APIClass {
     ).then((res) => res.json())
   }
 
-  async labelTrolleys({ label, flock, wh, date, mqttAddress, mqttPort }) {
+  async labelTrolleys({
+    label1,
+    label2,
+    flock,
+    wh,
+    date,
+    mqttAddress,
+    mqttPort,
+  }) {
     return await fetch(
       'https://ls72mt05m4.execute-api.us-east-1.amazonaws.com/dev/label-trolleys?' +
         queryString.stringify({
-          label,
+          label1,
+          label2,
           flock,
           wh,
           date: new Date(date).toISOString().slice(0, 10),

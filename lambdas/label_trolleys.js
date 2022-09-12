@@ -6,11 +6,12 @@ const label_trolleys = async ({
   flock,
   date,
   wh,
-  label,
+  label1,
+  label2,
   mqtt: mqttUrl,
 }) => {
   if (!db) throw Error('Missing DB')
-  if (!label) throw Error('Missing label')
+  if (!label1) throw Error('Missing label')
   if (!flock) throw Error('Missing flock name')
   if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) throw Error('Bad date format')
 
@@ -54,7 +55,10 @@ const label_trolleys = async ({
 
   sql.close()
 
-  console.log(`Products to label as ${label}: `, products)
+  console.log(
+    `Products to label as ${label1}${label2 ? `, ${label2}` : null}: `,
+    products
+  )
 
   const options = {
     clean: true,
@@ -76,7 +80,8 @@ const label_trolleys = async ({
         `yxtmmsg/${product.TrolleyUID}/Beep`,
         JSON.stringify({
           TS: Math.round(Date.now() / 1000),
-          AlertMessage: label,
+          AlertMessage: label1,
+          Data: label2 || '',
           RelObject: 2,
         }),
         { retain: true }
