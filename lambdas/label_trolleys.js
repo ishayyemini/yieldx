@@ -37,13 +37,17 @@ const label_trolleys = async ({
   const products = await new sql.Request()
     .query(
       `
-SELECT ProdID, FlockID, FlockWHID as SourceWH, WHID as DestWH, LayingDate, Amount, TrolleyUID
+SELECT ProdID, FlockID, FlockWHID as SourceWH, WHID as DestWH, LayingDate, 
+       Amount, TrolleyUID, ProductTypes.Name as Type, 
+       Warehouses.Name as DestName
 FROM WHProdAmount
 INNER JOIN Products ON (Products.UID = WHProdAmount.ProdID)
+INNER JOIN ProductTypes ON (ProductTypes.UID = Products.Type)
+INNER JOIN Warehouses ON (Warehouses.UID = WHProdAmount.WHID)
 WHERE PlanningState = 0 and Amount != 0 and FlockID = '${flock}' and 
-      ${sourceWH ? `SourceWH = '${sourceWH}' and ` : ''}
-      ${destWH ? `DestWH = '${destWH}' and ` : ''}
-      LayingDate > '${date}'
+      ${sourceWH ? `FlockWHID = '${sourceWH}' and ` : ''}
+      ${destWH ? `WHID = '${destWH}' and ` : ''}
+      LayingDate < '${date}'
 `
     )
     .then((res) => res.recordset ?? [])
@@ -93,9 +97,3 @@ WHERE PlanningState = 0 and Amount != 0 and FlockID = '${flock}' and
 }
 
 module.exports.default = label_trolleys
-
-label_trolleys({
-  db: 'ishay',
-  flock: 'PS1_FL1',
-  date: '',
-})

@@ -57,9 +57,7 @@ const LabelTrolleys = () => {
       flock: { name: '', ID: '' },
       sourceWH: { name: '', ID: '' },
       destWH: { name: '', ID: '' },
-      rolling: 0,
-      // filterDate: false,
-      // date: new Date().toISOString().split('T')[0],
+      rolling: 1,
     },
     resolver: yupResolver(
       yup.object({
@@ -68,7 +66,9 @@ const LabelTrolleys = () => {
           .required(t('errors.label1.required'))
           .max(39, t('errors.label1.max')),
         label2: yup.string().max(39, t('errors.label2.max')),
-        // flock: yup.string().required(t('errors.flock.required')),
+        flock: yup.object({
+          ID: yup.string().required(t('errors.flock.required')),
+        }),
       })
     ),
   })
@@ -94,11 +94,11 @@ const LabelTrolleys = () => {
               item.DestID === values.destWH.ID
           )
           .map((item) => item.EarliestLaying)
-          .sort()[0]
+          .sort()[0] || Date.now()
       )
       earliest.setDate(earliest.getDate() + Number(values.rolling))
 
-      console.log({
+      API.labelTrolleys({
         label1: values.label1,
         label2: values.label2,
         flock: values.flock.ID,
@@ -108,21 +108,18 @@ const LabelTrolleys = () => {
         rolling: Number(values.rolling),
         mqttAddress: settings.mqttAddress,
         mqttPort: settings.mqttPort,
+      }).then((res) => {
+        setResult(res)
+        toggleLoading(false)
+        reset({
+          label1: '',
+          label2: '',
+          flock: { name: '', ID: '' },
+          sourceWH: { name: '', ID: '' },
+          destWH: { name: '', ID: '' },
+          rolling: 1,
+        })
       })
-      // console.log(data.filter(item => ite))
-      // API.labelTrolleys({
-      //   label1: values.label1,
-      //   label2: values.label2,
-      //   flock: values.flock.ID,
-      //   wh: wh === t('all') ? null : wh,
-      //   date: filterDate ? date : null,
-      //   mqttAddress: settings.mqttAddress,
-      //   mqttPort: settings.mqttPort,
-      // }).then((res) => {
-      //   setResult(res)
-      toggleLoading(false)
-      //   reset()
-      // })
     },
     [data, settings.mqttAddress, settings.mqttPort]
   )
@@ -149,7 +146,7 @@ const LabelTrolleys = () => {
           </FormField>
           <FormField
             label={t('flock.label') + ' *'}
-            error={errors.flock?.message}
+            error={errors.flock?.ID?.message}
           >
             <Select
               options={flocks}
@@ -187,42 +184,9 @@ const LabelTrolleys = () => {
               {...register('rolling')}
               disabled={!values.flock.ID}
               type={'number'}
+              min={1}
             />
           </FormField>
-          {/*<Box direction={'row'} pad={'small'} gap={'medium'}>*/}
-          {/*  {t('filterDate')}*/}
-          {/*  <CheckBox*/}
-          {/*    {...register('filterDate')}*/}
-          {/*    checked={values.filterDate}*/}
-          {/*    disabled={!values.flock.ID}*/}
-          {/*  />*/}
-          {/*</Box>*/}
-          {/*<FormField label={t('date') + ' (mm/dd/yyyy)'}>*/}
-          {/*  <DateInput*/}
-          {/*    {...register('date')}*/}
-          {/*    format={'mm/dd/yyyy'}*/}
-          {/*    value={values.date}*/}
-          {/*    onChange={({ value }) => {*/}
-          {/*      if (typeof value === 'string') setValue('date', value)*/}
-          {/*      else if (typeof value === 'object') setValue('date', value[0])*/}
-          {/*    }}*/}
-          {/*    calendarProps={{*/}
-          {/*      bounds: data[watchFlock]?.[watchWH]*/}
-          {/*        ? [data[watchFlock][watchWH][0], new Date().toISOString()]*/}
-          {/*        : null,*/}
-          {/*      range: false,*/}
-          {/*      disabled: data[watchFlock]?.[watchWH]*/}
-          {/*        ? genDates(*/}
-          {/*            data[watchFlock][watchWH][0],*/}
-          {/*            new Date(),*/}
-          {/*            data[watchFlock][watchWH]*/}
-          {/*          )*/}
-          {/*        : null,*/}
-          {/*    }}*/}
-          {/*    dropProps={{ align: { bottom: 'top', left: 'left' } }}*/}
-          {/*    disabled={!watchFilterDate}*/}
-          {/*  />*/}
-          {/*</FormField>*/}
 
           <FormButtons submit clear />
         </form>
@@ -238,7 +202,7 @@ const LabelTrolleys = () => {
             <Box height={{ max: '300px' }} overflow={'auto'}>
               <DataTable
                 columns={[
-                  { property: 'Warehouse', header: 'Warehouse', primary: true },
+                  { property: 'DestName', header: 'Warehouse', primary: true },
                   { property: 'Type', header: 'Type' },
                   { property: 'Amount', header: 'Egg Count' },
                 ]}

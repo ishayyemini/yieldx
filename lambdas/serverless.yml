@@ -24,7 +24,9 @@ functions:
                 db: true
                 flock: true
                 date: true
-                wh: false
+                rolling: true
+                sourceWH: false
+                destWH: false
                 label1: true
                 label2: false
                 mqtt: false
@@ -34,7 +36,9 @@ functions:
                   "db" : "$input.params('db')",
                   "flock" : "$input.params('flock')",
                   "date" : "$input.params('date')",
-                  "wh" : "$input.params('wh')",
+                  "sourceWH" : "$input.params('sourceWH')",
+                  "destWH" : "$input.params('destWH')",
+                  "rolling" : "$input.params('rolling')",
                   "label1" : "$input.params('label1')",
                   "label2" : "$input.params('label2')",
                   "mqtt" : "$input.params('mqtt')"
