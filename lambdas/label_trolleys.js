@@ -37,18 +37,18 @@ const label_trolleys = async ({
   const products = await new sql.Request()
     .query(
       `
-SELECT ProdID, FlockID, FlockWHID as SourceWH, WHID as DestWH, LayingDate, 
-       Amount, TrolleyUID, ProductTypes.Name as Type, 
-       Warehouses.Name as DestName
-FROM WHProdAmount
-INNER JOIN Products ON (Products.UID = WHProdAmount.ProdID)
-INNER JOIN ProductTypes ON (ProductTypes.UID = Products.Type)
-INNER JOIN Warehouses ON (Warehouses.UID = WHProdAmount.WHID)
-WHERE PlanningState = 0 and Amount != 0 and FlockID = '${flock}' and 
-      ${sourceWH ? `FlockWHID = '${sourceWH}' and ` : ''}
-      ${destWH ? `WHID = '${destWH}' and ` : ''}
-      LayingDate < '${date}'
-`
+  SELECT ProdID, FlockID, FlockWHID as SourceWH, WHID as DestWH, LayingDate,
+         Amount, TrolleyUID, ProductTypes.Name as Type,
+         Warehouses.Name as DestName
+  FROM WHProdAmount
+  INNER JOIN Products ON (Products.UID = WHProdAmount.ProdID)
+  INNER JOIN ProductTypes ON (ProductTypes.UID = Products.Type)
+  INNER JOIN Warehouses ON (Warehouses.UID = WHProdAmount.WHID)
+  WHERE PlanningState = 0 and Amount != 0 and FlockID = '${flock}' and
+        ${sourceWH.length ? `FlockWHID in (${sourceWH}) and ` : ''}
+        ${destWH.length ? `WHID in (${destWH}) and ` : ''}
+        LayingDate < '${date}'
+  `
     )
     .then((res) => res.recordset ?? [])
     .catch((e) => console.log(e))

@@ -62,8 +62,12 @@ class APIClass {
           label1,
           label2,
           flock,
-          sourceWH,
-          destWH,
+          sourceWH: sourceWH.length
+            ? sourceWH.map((item) => `'${item}'`).toString()
+            : null,
+          destWH: destWH.length
+            ? destWH.map((item) => `'${item}'`).toString()
+            : null,
           rolling,
           date: new Date(date).toISOString().slice(0, 10),
           db: this._config.user,

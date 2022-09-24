@@ -8,6 +8,7 @@ import {
   Layer,
   Main,
   Select,
+  SelectMultiple,
   Text,
   TextInput,
 } from 'grommet'
@@ -27,12 +28,23 @@ const parseData = (data, idKey, nameKey, filterBy) => [
         (item) =>
           !filterBy ||
           Object.entries(filterBy).every(
-            ([key, value]) => !value || item[key] === value
+            ([key, values]) =>
+              !values.filter((item) => item).length ||
+              values.includes(item[key])
           )
       )
       .map((item) => [item[idKey], { name: item[nameKey], ID: item[idKey] }])
   ).values(),
 ]
+
+const defaultValues = {
+  label1: '',
+  label2: '',
+  flock: { name: '', ID: '' },
+  sourceWH: [],
+  destWH: [],
+  rolling: 1,
+}
 
 const LabelTrolleys = () => {
   const { settings } = useContext(GlobalContext)
@@ -51,14 +63,7 @@ const LabelTrolleys = () => {
     reset,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      label1: '',
-      label2: '',
-      flock: { name: '', ID: '' },
-      sourceWH: { name: '', ID: '' },
-      destWH: { name: '', ID: '' },
-      rolling: 1,
-    },
+    defaultValues,
     resolver: yupResolver(
       yup.object({
         label1: yup
@@ -69,6 +74,8 @@ const LabelTrolleys = () => {
         flock: yup.object({
           ID: yup.string().required(t('errors.flock.required')),
         }),
+        sourceWH: yup.array().min(1, t('errors.sourceWH.min')),
+        destWH: yup.array().min(1, t('errors.destWH.min')),
       })
     ),
   })
@@ -90,8 +97,8 @@ const LabelTrolleys = () => {
           .filter(
             (item) =>
               item.FlockID === values.flock.ID &&
-              item.SourceID === values.sourceWH.ID &&
-              item.DestID === values.destWH.ID
+              values.sourceWH.includes(item.SourceID) &&
+              values.destWH.includes(item.DestID)
           )
           .map((item) => item.EarliestLaying)
           .sort()[0] || Date.now()
@@ -102,8 +109,8 @@ const LabelTrolleys = () => {
         label1: values.label1,
         label2: values.label2,
         flock: values.flock.ID,
-        sourceWH: values.sourceWH.ID,
-        destWH: values.destWH.ID,
+        sourceWH: values.sourceWH,
+        destWH: values.destWH,
         date: earliest,
         rolling: Number(values.rolling),
         mqttAddress: settings.mqttAddress,
@@ -111,14 +118,7 @@ const LabelTrolleys = () => {
       }).then((res) => {
         setResult(res)
         toggleLoading(false)
-        reset({
-          label1: '',
-          label2: '',
-          flock: { name: '', ID: '' },
-          sourceWH: { name: '', ID: '' },
-          destWH: { name: '', ID: '' },
-          rolling: 1,
-        })
+        reset(defaultValues)
       })
     },
     [data, settings.mqttAddress, settings.mqttPort]
@@ -126,12 +126,12 @@ const LabelTrolleys = () => {
 
   const flocks = parseData(data, 'FlockID', 'FlockName')
   const sourceWHs = parseData(data, 'SourceID', 'SourceName', {
-    FlockID: values.flock.ID,
-    DestID: values.destWH.ID,
+    FlockID: [values.flock.ID],
+    DestID: values.destWH,
   })
   const destWHs = parseData(data, 'DestID', 'DestName', {
-    FlockID: values.flock.ID,
-    SourceID: values.sourceWH.ID,
+    FlockID: [values.flock.ID],
+    SourceID: values.sourceWH,
   })
 
   return (
@@ -157,24 +157,27 @@ const LabelTrolleys = () => {
               placeholder={t('flock.placeholder')}
             />
           </FormField>
-          <FormField label={t('sourceWH.label')}>
-            <Select
+          <FormField
+            label={t('sourceWH.label')}
+            error={errors.sourceWH?.message}
+          >
+            <SelectMultiple
               options={sourceWHs}
-              onChange={(e) => setValue('sourceWH', e.option)}
+              onChange={(e) => setValue('sourceWH', e.value)}
               value={values.sourceWH}
               labelKey={'name'}
-              valueKey={'ID'}
+              valueKey={{ key: 'ID', reduce: true }}
               placeholder={t('sourceWH.placeholder')}
               disabled={!values.flock.ID}
             />
           </FormField>
-          <FormField label={t('destWH.label')}>
-            <Select
+          <FormField label={t('destWH.label')} error={errors.destWH?.message}>
+            <SelectMultiple
               options={destWHs}
-              onChange={(e) => setValue('destWH', e.option)}
+              onChange={(e) => setValue('destWH', e.value)}
               value={values.destWH}
               labelKey={'name'}
-              valueKey={'ID'}
+              valueKey={{ key: 'ID', reduce: true }}
               placeholder={t('destWH.placeholder')}
               disabled={!values.flock.ID}
             />
