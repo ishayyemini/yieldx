@@ -39,10 +39,16 @@ i18n
             all: 'All',
             label: 'Text to display on trolley',
             flock: { label: 'Flock', placeholder: 'Choose flock' },
-            wh: {
-              label: 'Warehouse',
-              placeholder: ['First choose flock', 'Choose warehouse'],
+            sourceWH: {
+              label: 'Source warehouses',
+              placeholder: 'Choose warehouses',
             },
+            destWH: {
+              label: 'Destination warehouses',
+              placeholder: 'Choose warehouses',
+            },
+            rolling: 'Rolling days (older than)',
+
             filterDate: 'Filter by date?',
             date: 'Date',
             success: 'Successfully labelled trolleys: ({{trolleys}} total)',
@@ -57,6 +63,12 @@ i18n
               },
               flock: {
                 required: 'Flock is a required field',
+              },
+              sourceWH: {
+                min: 'At least one source warehouse must be selected',
+              },
+              destWH: {
+                min: 'At least one destination warehouse must be selected',
               },
             },
           },

@@ -5,20 +5,23 @@ const label_trolleys = async ({
   db,
   flock,
   date,
-  wh,
+  rolling,
+  sourceWH,
+  destWH,
   label1,
   label2,
   mqtt: mqttUrl,
 }) => {
   if (!db) throw Error('Missing DB')
   if (!label1) throw Error('Missing label')
-  if (!flock) throw Error('Missing flock name')
+  if (!flock) throw Error('Missing flock ID')
+  if (!date) date = new Date().toISOString().split('T')[0]
   if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) throw Error('Bad date format')
 
   console.log(
-    `Looking for products${
-      date ? ' after ' + date : ''
-    } in flock ${flock} in warehouse ${wh || 'ANY'}`
+    `Looking for products before ${date} in flock ${flock} from ${
+      sourceWH || 'ANY'
+    } in ${destWH || 'ANY'}`
   )
 
   const config = {
@@ -34,21 +37,18 @@ const label_trolleys = async ({
   const products = await new sql.Request()
     .query(
       `
-  select wa1.ProdID, wa1.Amount, 
-  (select Name from Warehouses whs1 where whs1.UID = wa1.WHID) as "Warehouse",
-  (select TrolleyUID from Products p1 where p1.UID = wa1.ProdID) as "TrolleyUID",
-  (select (select Name from ProductTypes pt1 where p1.Type = pt1.UID) 
-    from Products p1 where p1.UID = wa1.ProdID) as "Type"
-  from WHProdAmount wa1
-  where ${
-    wh ? `WHID in (select UID from Warehouses where Name = '${wh}') and` : ''
-  }
-  ProdID in
-      (select UID from Products
-          where FlockID in (select UID from Flocks where Name = '${flock}') and
-          ${date ? ` LayingDate >= '${date}' and ` : ''}
-          PlanningState = 0
-      )`
+  SELECT ProdID, FlockID, FlockWHID as SourceWH, WHID as DestWH, LayingDate,
+         Amount, TrolleyUID, ProductTypes.Name as Type,
+         Warehouses.Name as DestName
+  FROM WHProdAmount
+  INNER JOIN Products ON (Products.UID = WHProdAmount.ProdID)
+  INNER JOIN ProductTypes ON (ProductTypes.UID = Products.Type)
+  INNER JOIN Warehouses ON (Warehouses.UID = WHProdAmount.WHID)
+  WHERE PlanningState = 0 and Amount != 0 and FlockID = '${flock}' and
+        ${sourceWH.length ? `FlockWHID in (${sourceWH}) and ` : ''}
+        ${destWH.length ? `WHID in (${destWH}) and ` : ''}
+        LayingDate < '${date}'
+  `
     )
     .then((res) => res.recordset ?? [])
     .catch((e) => console.log(e))
@@ -82,6 +82,8 @@ const label_trolleys = async ({
           TS: Math.round(Date.now() / 1000),
           AlertMessage: label1,
           Data: label2 || '',
+          Rolling: rolling,
+          Total: products.length,
           RelObject: 2,
         }),
         { retain: true }

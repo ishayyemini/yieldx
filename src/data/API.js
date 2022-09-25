@@ -49,7 +49,9 @@ class APIClass {
     label1,
     label2,
     flock,
-    wh,
+    sourceWH,
+    destWH,
+    rolling,
     date,
     mqttAddress,
     mqttPort,
@@ -60,7 +62,13 @@ class APIClass {
           label1,
           label2,
           flock,
-          wh,
+          sourceWH: sourceWH.length
+            ? sourceWH.map((item) => `'${item}'`).toString()
+            : null,
+          destWH: destWH.length
+            ? destWH.map((item) => `'${item}'`).toString()
+            : null,
+          rolling,
           date: new Date(date).toISOString().slice(0, 10),
           db: this._config.user,
           mqtt: mqttAddress && mqttPort && `mqtt://${mqttAddress}:${mqttPort}`,

@@ -14,68 +14,24 @@ const get_flock_wh_date = async ({ db }) => {
   }
   await sql.connect(config).catch((e) => console.log(e))
 
-  const flockNames = await new sql.Request()
+  const flocks = await new sql.Request()
     .query(
-      `SELECT Name FROM Flocks WHERE UID in 
-                (SELECT FlockID FROM Products WHERE PlanningState = 0)`
+      `
+SELECT FlockID, Flocks.Name AS FlockName, SourceWH.UID AS SourceID,
+       SourceWH.Name AS SourceName, DestWH.UID AS DestID, 
+       DestWH.Name AS DestName, min(LayingDate) AS EarliestLaying
+FROM Flocks
+INNER JOIN Products ON (Products.FlockID = Flocks.UID)
+INNER JOIN WHProdAmount ON (WHProdAmount.ProdID = Products.UID)
+INNER JOIN Warehouses AS SourceWH ON (SourceWH.UID = Products.FlockWHID)
+INNER JOIN Warehouses AS DestWH ON (DestWH.UID = WHProdAmount.WHID)
+WHERE Amount > 0 AND PlanningState = 0
+GROUP BY FlockID, Flocks.Name, SourceWH.UID, SourceWH.Name, DestWH.UID, 
+         DestWH.Name
+      `
     )
-    .then((res) => {
-      if (res.recordset) return res.recordset.map((item) => item.Name)
-    })
+    .then((res) => res.recordset || [])
     .catch((e) => console.log(e))
-
-  const flocks = Object.fromEntries(
-    await Promise.all(
-      flockNames.map((fName) =>
-        new sql.Request()
-          .query(
-            `SELECT Name FROM Warehouses WHERE UID in 
-                    (SELECT WHID FROM WHProdAmount WHERE ProdID in 
-                        (SELECT UID FROM Products
-                        WHERE FlockID in (SELECT UID FROM Flocks WHERE Name = '${fName}') and
-                        PlanningState = 0))`
-          )
-          .then((res) => {
-            if (res.recordset)
-              return [
-                fName,
-                Object.fromEntries(res.recordset.map((item) => [item.Name, 0])),
-              ]
-          })
-          .catch((e) => console.log(e))
-      )
-    )
-  )
-
-  await Promise.all(
-    Object.entries(flocks).map(([fName, WHs]) =>
-      Promise.all(
-        Object.keys(WHs).map((WH) =>
-          new sql.Request()
-            .query(
-              `SELECT LayingDate FROM Products
-                        WHERE PlanningState = 0 and FlockID in
-                        (select UID from Flocks where Name = '${fName}') and
-                        UID in (SELECT ProdID FROM WHProdAmount WHERE WHID in
-                        (select UID from Warehouses where Name = '${WH}'))`
-            )
-            .then((res) => {
-              if (res.recordset)
-                flocks[fName][WH] = [
-                  ...new Set(
-                    res.recordset
-                      .sort((a, b) => a.LayingDate - b.LayingDate)
-                      .map(
-                        (item) => item.LayingDate.toISOString().split('T')[0]
-                      )
-                  ),
-                ]
-            })
-            .catch((e) => console.log(e))
-        )
-      )
-    )
-  )
 
   sql.close()
 
