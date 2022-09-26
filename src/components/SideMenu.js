@@ -40,7 +40,11 @@ const SideMenu = ({ signOut }) => {
   )
 
   return (
-    <Box pad={'small'} flex={false} style={{ position: 'sticky', top: 0 }}>
+    <Box
+      pad={'small'}
+      flex={false}
+      style={{ position: 'sticky', top: 0, zIndex: 10 }}
+    >
       <Sidebar
         round={'small'}
         background={'var(--main)'}

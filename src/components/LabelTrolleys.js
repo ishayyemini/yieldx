@@ -121,7 +121,7 @@ const LabelTrolleys = () => {
         reset(defaultValues)
       })
     },
-    [data, settings.mqttAddress, settings.mqttPort]
+    [data, settings.mqttAddress, settings.mqttPort, reset]
   )
 
   const flocks = parseData(data, 'FlockID', 'FlockName')

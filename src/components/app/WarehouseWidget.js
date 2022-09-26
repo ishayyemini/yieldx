@@ -1,7 +1,8 @@
+import { useMemo } from 'react'
 import styled from 'styled-components'
 import { Box } from 'grommet'
 import { useTranslation } from 'react-i18next'
-import Chart from 'react-apexcharts'
+import { Chart } from 'react-charts'
 
 const Wrapper = styled(Box).attrs({
   background: { light: 'brand' },
@@ -17,44 +18,55 @@ const Wrapper = styled(Box).attrs({
 const WarehouseWidget = ({ kind, warehouses }) => {
   const { t } = useTranslation()
 
-  const whNames = warehouses.map((wh) => wh.whName)
-  const series = [
-    {
-      name: 'eggsTotal',
-      type: 'bar',
-      data: warehouses.map((wh) => ({ x: wh.whName, y: wh.eggsTotal })),
-    },
-  ]
+  // if (kind === 'House' || kind === 'EggStorage' || kind === 'garbage')
+  // TODO calculate eggs today
 
-  if (kind === 'house' || kind === 'eggStorage' || kind === 'garbage')
-    series.push({
-      name: 'eggsToday',
-      type: 'bar',
-      data: warehouses.map((wh) => ({ x: wh.whName, y: wh.eggsToday })),
-    })
+  // if (kind === 'House' || kind === 'EggStorage' || kind === 'Loading Ramp')
+  // TODO use sensors
 
-  if (kind === 'house' || kind === 'eggStorage' || kind === 'loadingRamp')
-    series.concat(
-      ['temp', 'humidity', 'pressure'].map((key) => ({
-        name: key,
-        type: 'line',
-        data: warehouses.map((wh) => ({ x: wh.whName, y: wh[key] })),
-      }))
-    )
+  const data = useMemo(
+    () => [
+      {
+        label: 'React Charts',
+        data: warehouses,
+      },
+    ],
+    [warehouses]
+  )
+
+  const primaryAxis = useMemo(
+    () => ({
+      getValue: (datum) => datum.Name,
+      elementType: 'linear',
+    }),
+    []
+  )
+
+  const secondaryAxes = useMemo(
+    () => [
+      {
+        getValue: (datum) => datum.Amount,
+        elementType: 'bar',
+        scaleType: 'linear',
+        min: 0,
+      },
+    ],
+    []
+  )
 
   return (
     <Wrapper flex>
-      {/*{t(`warehouseWidget.${kind}`)}*/}
-      <Chart
-        options={{
-          chart: { id: kind },
-          xaxis: { categories: whNames },
-        }}
-        series={series}
-        type="bar"
-        width={500}
-        // height={320}
-      />
+      {t(`warehouseWidget.${kind}`)}
+      {warehouses.length ? (
+        <Chart
+          options={{
+            data,
+            primaryAxis,
+            secondaryAxes,
+            padding: { left: 0, right: 20, bottom: 10 },
+          }}
+        />
+      ) : null}
     </Wrapper>
   )
 }

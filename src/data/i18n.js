@@ -29,11 +29,11 @@ i18n
             voc: 'VOC',
           },
           warehouseWidget: {
-            house: 'House',
-            eggStorage: 'Egg Storage',
-            loadingRamp: 'Loading Ramp',
-            garbage: 'Garbage',
-            unknown: 'Unknown',
+            House: 'House',
+            EggStorage: 'Egg Storage',
+            'Loading Ramp': 'Loading Ramp',
+            Garbage: 'Garbage',
+            Unknown: 'Unknown',
           },
           labelTrolleys: {
             all: 'All',

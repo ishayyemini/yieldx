@@ -5,7 +5,7 @@ const get_wh_amounts = async ({ db, lastFetched }) => {
 
   console.log(
     `Getting a list of Warehouses in ${db} ${
-      lastFetched ? `modified after ${lastFetched}` : null
+      lastFetched ? `modified after ${lastFetched}` : ''
     }`
   )
 
@@ -20,11 +20,23 @@ const get_wh_amounts = async ({ db, lastFetched }) => {
 
   const warehouses = await new sql.Request()
     .query(
-      `select UID, Name, Type, Amount, DateModified from (select UID, Name, 
-(select TypeDescription from WarehouseType wt1 where wt1.TypeID = w1.Type) as Type, 
-(select sum(Amount) from WHProdAmount wa1 where wa1.WHID = w1.UID) as Amount, 
-(select max(DateModified) from WHProdAmount wa1 where wa1.WHID = w1.UID) as DateModified
-from Warehouses w1) as foobar where DateModified > '${lastFetched || ''}'`
+      `
+  SELECT Warehouses.UID as UID, Warehouses.Name as Name, 
+         WarehouseType.TypeDescription as Type,
+         isnull(sum(WHProdAmount.Amount), 0) as Amount,
+         max(WHProdAmount.DateModified) as DateModified,
+         ParentWH.Name as OwnerName, ParentType.TypeDescription as OwnerType
+  FROM Warehouses 
+  INNER JOIN WarehouseType ON (WarehouseType.TypeID = Warehouses.Type)
+  LEFT JOIN WHProdAmount ON (WHProdAmount.WHID = Warehouses.UID)
+  LEFT JOIN WHOwnerChilds ON (WHOwnerChilds.ChildID = Warehouses.UID)
+  LEFT JOIN Warehouses as ParentWH ON (ParentWH.UID = WHOwnerChilds.OwnerID)
+  LEFT JOIN WarehouseType as ParentType ON (ParentType.TypeID = ParentWH.Type)
+  WHERE isnull(WHProdAmount.DateModified, Warehouses.DateModified) 
+            > '${lastFetched || ''}'
+  GROUP BY Warehouses.UID, Warehouses.Name, WarehouseType.TypeDescription,
+           ParentWH.Name, ParentType.TypeDescription
+`
     )
     .then((res) => res.recordset)
     .catch((e) => console.log(e))
