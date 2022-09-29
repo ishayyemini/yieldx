@@ -32,8 +32,8 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchDB()
-    const fetching = setInterval(() => fetchDB(), 15000)
-    return () => clearInterval(fetching)
+    // const fetching = setInterval(() => fetchDB(), 15000)
+    // return () => clearInterval(fetching)
   }, [fetchDB])
 
   console.log(data)
