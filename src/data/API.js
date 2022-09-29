@@ -83,10 +83,10 @@ class APIClass {
     ).then((res) => res.json())
   }
 
-  async getWHAmounts({ lastFetched }) {
+  async getWHAmounts() {
     return await fetch(
       'https://ls72mt05m4.execute-api.us-east-1.amazonaws.com/dev/get-wh-amounts?' +
-        queryString.stringify({ db: this._config.user, lastFetched })
+        queryString.stringify({ db: this._config.user })
     ).then((res) => res.json())
   }
 }

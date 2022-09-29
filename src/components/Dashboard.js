@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Box } from 'grommet'
 
 import API from '../data/API'
@@ -14,16 +14,29 @@ const Dashboard = () => {
   How often should this be updated? Indication of last update? Manual update?
    */
 
-  const lastFetched = useRef('')
-
   const [data, setData] = useState([])
 
-  useEffect(() => {
-    API.getWHAmounts({ lastFetched: lastFetched.current }).then((res) => {
-      lastFetched.current = new Date().toISOString()
-      setData(res.filter((item) => item.OwnerName === 'PS1'))
+  const fetchDB = useCallback(() => {
+    API.getWHAmounts().then((res) => {
+      setData(
+        res
+          .filter((item) => item.OwnerName === 'PS1')
+          .map((item, index) =>
+            index === 0
+              ? { ...item, AmountToday: 2000, AmountTotal: 4000 }
+              : item
+          )
+      )
     })
   }, [])
+
+  useEffect(() => {
+    fetchDB()
+    const fetching = setInterval(() => fetchDB(), 15000)
+    return () => clearInterval(fetching)
+  }, [fetchDB])
+
+  console.log(data)
 
   return (
     <Box gap={'small'} pad={'small'} flex={'grow'} basis={'60%'}>
@@ -43,8 +56,14 @@ const Dashboard = () => {
         />
       </Box>
       <Box direction={'row'} basis={'100px'} justify={'stretch'} gap={'small'}>
-        <WarehouseWidget kind={'garbage'} warehouses={[]} />
-        <WarehouseWidget kind={'unknown'} warehouses={[]} />
+        <WarehouseWidget
+          kind={'Garbage'}
+          warehouses={data.filter((item) => item.Type === 'Garbage')}
+        />
+        <WarehouseWidget
+          kind={'Unknown'}
+          warehouses={data.filter((item) => item.Type === 'Unknown')}
+        />
       </Box>
 
       {/*<Box>*/}

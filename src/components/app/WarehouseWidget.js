@@ -45,9 +45,13 @@ const WarehouseWidget = ({ kind, warehouses }) => {
   const secondaryAxes = useMemo(
     () => [
       {
-        getValue: (datum) => datum.Amount,
+        getValue: (datum) => datum.AmountToday,
+        elementType: 'area',
+        min: 0,
+      },
+      {
+        getValue: (datum) => datum.AmountTotal,
         elementType: 'bar',
-        scaleType: 'linear',
         min: 0,
       },
     ],
