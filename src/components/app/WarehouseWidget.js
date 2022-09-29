@@ -27,17 +27,17 @@ const WarehouseWidget = ({ kind, warehouses }) => {
   const series = useMemo(
     () => [
       {
-        name: 'Eggs Today',
-        type: 'bar',
-        data: warehouses.map((wh) => ({ x: wh.Name, y: wh.AmountToday })),
-      },
-      {
         name: 'Eggs Total',
         type: 'bar',
         data: warehouses.map((wh) => ({
           x: wh.Name,
-          y: wh.AmountTotal - wh.AmountToday,
+          y: wh.AmountTotal,
         })),
+      },
+      {
+        name: 'Eggs Today',
+        type: 'bar',
+        data: warehouses.map((wh) => ({ x: wh.Name, y: wh.AmountToday })),
       },
     ],
     [warehouses]
@@ -50,11 +50,25 @@ const WarehouseWidget = ({ kind, warehouses }) => {
           chart: {
             id: kind,
             toolbar: { show: false },
-            stacked: true,
+            // stacked: true,
+            zoom: { enabled: false },
           },
           legend: { show: false },
           title: { text: t(kind) },
           xaxis: { categories: warehouses.map((item) => item.Name) },
+          yaxis: { min: 0 },
+          // tooltip: {
+          //   y: {
+          //     formatter: (val, opts) =>
+          //       opts.seriesIndex === 0
+          //         ? opts.series[0][opts.dataPointIndex] +
+          //           opts.series[1][opts.dataPointIndex]
+          //         : val,
+          //     title: {
+          //       formatter: (seriesName) => seriesName,
+          //     },
+          //   },
+          // },
         }}
         series={series}
         width={'100%'}
