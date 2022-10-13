@@ -28,12 +28,16 @@ i18n
             Baro: 'Pressure',
             CO2: 'CO2',
           },
-          warehouseWidget: {
+          warehouseView: {
+            empty: 'Warehouse not found',
             House: 'House',
             EggStorage: 'Egg Storage',
             'Loading Ramp': 'Loading Ramp',
             Garbage: 'Garbage',
             Unknown: 'Unknown',
+            AmountTotal: 'Total Eggs',
+            AmountToday: 'Today Eggs',
+            Trolleys: 'Trolleys',
           },
           labelTrolleys: {
             all: 'All',
