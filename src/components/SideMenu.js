@@ -33,6 +33,8 @@ const NavButton = ({ to, ...props }) => {
 const SideMenu = ({ signOut }) => {
   const size = useContext(ResponsiveContext)
 
+  const { pathname } = useLocation()
+
   const footerElements = (
     <>
       <NavButton icon={<Icons.Logout />} label={'Sign Out'} onClick={signOut} />
@@ -63,6 +65,13 @@ const SideMenu = ({ signOut }) => {
             label={'Parent Stock'}
             to={'/'}
           />
+          {pathname.startsWith('/warehouse/') ? (
+            <NavButton
+              icon={<Icons.CloudSoftware />}
+              label={'Warehouse'}
+              to={pathname}
+            />
+          ) : null}
           <NavButton
             icon={<Icons.Tag />}
             label={'Label Trolleys'}

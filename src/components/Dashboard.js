@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Box, Card, Text } from 'grommet'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 
 import API from '../data/API'
 import WarehouseWidget from './app/WarehouseWidget'
@@ -37,6 +38,8 @@ const Dashboard = () => {
 
   const { t } = useTranslation(null, { keyPrefix: 'dashboard' })
 
+  const navigate = useNavigate()
+
   const fetchDB = useCallback(() => {
     API.getWHAmounts().then((res) => {
       setData(
@@ -71,13 +74,16 @@ const Dashboard = () => {
             justify={'center'}
             align={'center'}
             direction={'row'}
-            onClick={() => console.log(item.UID)}
+            onClick={() => navigate(`/warehouse/${item.UID}`)}
             hoverIndicator
             flex
+            key={item.UID}
           >
             <Box pad={'small'}>
               {keysToShow.map((key) => (
-                <Text size={'small'}>{t(key)}: </Text>
+                <Text size={'small'} key={key}>
+                  {t(key)}:
+                </Text>
               ))}
             </Box>
             <Box pad={'small'}>
@@ -85,6 +91,7 @@ const Dashboard = () => {
                 <Text
                   size={'small'}
                   weight={['AmountTotal'].includes(key) ? 'bold' : 'normal'}
+                  key={key}
                 >
                   {['Temp', 'Humidity', 'Baro', 'CO2'].includes(key)
                     ? item[key]?.toFixed(2) || '---'
