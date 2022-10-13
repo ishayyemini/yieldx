@@ -23,6 +23,7 @@ const get_wh_amounts = async ({ db, lastFetched }) => {
       `
   SELECT Warehouses.UID as UID, Warehouses.Name as Name, 
          WarehouseType.TypeDescription as Type,
+         count(WHProdAmount.Amount) as Trolleys,
          isnull((SELECT sum(Amount) FROM WHProdAmount WHERE Amount > 0 and 
                  WHID = Warehouses.UID), 0) as AmountTotal,
          (SELECT isnull(sum(CASE WHEN CONVERT(DATE, ReportDate) = 
