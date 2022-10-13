@@ -1,10 +1,15 @@
+import { useContext } from 'react'
 import { useLocation } from 'react-router-dom'
 
-const WarehouseView = () => {
-  const { pathname } = useLocation()
+import GlobalContext from './app/GlobalContext'
 
-  console.log(pathname.split('/').slice(-1)[0])
-  return null
+const WarehouseView = () => {
+  const { warehouses } = useContext(GlobalContext)
+
+  const { pathname } = useLocation()
+  const UID = pathname.split('/').slice(-1)[0]
+
+  return warehouses.find((item) => item.UID === UID)?.Name
 }
 
 export default WarehouseView

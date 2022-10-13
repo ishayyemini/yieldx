@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect } from 'react'
 import { Box, Card, Text } from 'grommet'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 import API from '../data/API'
 import WarehouseWidget from './app/WarehouseWidget'
+import GlobalContext from './app/GlobalContext'
 
 const keysToShow = [
   'Name',
@@ -25,6 +26,7 @@ const layout = (length) => {
 }
 
 const Dashboard = () => {
+  const { warehouses } = useContext(GlobalContext)
   /*
   What do we need to see here?
   Main page - warehouses, for each type display a chart - bar chart with total
@@ -34,34 +36,22 @@ const Dashboard = () => {
   How often should this be updated? Indication of last update? Manual update?
    */
 
-  const [data, setData] = useState([])
-
   const { t } = useTranslation(null, { keyPrefix: 'dashboard' })
 
   const navigate = useNavigate()
 
-  const fetchDB = useCallback(() => {
-    API.getWHAmounts().then((res) => {
-      setData(
-        res.filter(
-          (item) =>
-            ['House', 'EggStorage', 'Loading Ramp'].includes(item.Type) &&
-            item.OwnerName === 'PS1'
-        )
-        // .map((item, index) =>
-        //   index === 0
-        //     ? { ...item, AmountToday: 2000, AmountTotal: 4000 }
-        //     : item
-        // )
-      )
-    })
+  useEffect(() => {
+    const fetching = setInterval(() => API.getWHAmounts().then(), 15000)
+    return () => clearInterval(fetching)
   }, [])
 
-  useEffect(() => {
-    fetchDB()
-    // const fetching = setInterval(() => fetchDB(), 15000)
-    // return () => clearInterval(fetching)
-  }, [fetchDB])
+  const data = warehouses
+    .filter(
+      (item) =>
+        ['House', 'EggStorage', 'Loading Ramp'].includes(item.Type) &&
+        item.OwnerName === 'PS1'
+    )
+    .slice(0, 12)
 
   const genCubes = useCallback(
     (type) =>

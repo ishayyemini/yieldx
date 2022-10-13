@@ -35,7 +35,8 @@ class APIClass {
 
   async loadUser() {
     const settings = JSON.parse(localStorage.getItem('settings') || '{}')
-    this._updateContext({ settings })
+    const warehouses = await this.getWHAmounts(false)
+    this._updateContext({ settings, warehouses })
   }
 
   async login(user) {
@@ -83,11 +84,16 @@ class APIClass {
     ).then((res) => res.json())
   }
 
-  async getWHAmounts() {
+  async getWHAmounts(update = true) {
     return await fetch(
       'https://ls72mt05m4.execute-api.us-east-1.amazonaws.com/dev/get-wh-amounts?' +
         queryString.stringify({ db: this._config.user })
-    ).then((res) => res.json())
+    )
+      .then((res) => res.json())
+      .then((res) => {
+        if (update) this._updateContext({ warehouses: res })
+        return res
+      })
   }
 }
 

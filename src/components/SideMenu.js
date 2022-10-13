@@ -1,8 +1,10 @@
+import { useContext } from 'react'
 import { Box, Button, Nav, ResponsiveContext, Sidebar } from 'grommet'
 import * as Icons from 'grommet-icons'
 import styled from 'styled-components'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useContext } from 'react'
+
+import GlobalContext from './app/GlobalContext'
 
 const NavButtonStyled = styled(Button).attrs({
   plain: true,
@@ -32,6 +34,7 @@ const NavButton = ({ to, ...props }) => {
 
 const SideMenu = ({ signOut }) => {
   const size = useContext(ResponsiveContext)
+  const { warehouses } = useContext(GlobalContext)
 
   const { pathname } = useLocation()
 
@@ -68,7 +71,11 @@ const SideMenu = ({ signOut }) => {
           {pathname.startsWith('/warehouse/') ? (
             <NavButton
               icon={<Icons.CloudSoftware />}
-              label={'Warehouse'}
+              label={
+                warehouses.find(
+                  (item) => item.UID === pathname.split('/').slice(-1)[0]
+                )?.Name || 'Warehouse'
+              }
               to={pathname}
             />
           ) : null}
