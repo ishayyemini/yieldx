@@ -45,7 +45,7 @@ const Dashboard = () => {
     return () => clearInterval(fetching)
   }, [])
 
-  const data = warehouses
+  const data = Object.values(warehouses)
     .filter(
       (item) =>
         ['House', 'EggStorage', 'Loading Ramp'].includes(item.Type) &&

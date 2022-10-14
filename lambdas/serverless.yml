@@ -97,3 +97,22 @@ functions:
                   "db" : "$input.params('db')",
                   "lastFetched" : "$input.params('lastFetched')"
                 }
+  get_sensor_history:
+    handler: get_sensor_history.default
+    events:
+      - http:
+          method: get
+          path: get-sensor-history
+          integration: lambda
+          cors: true
+          request:
+            parameters:
+              querystrings:
+                db: true
+                wh: true
+            template:
+              application/json: |
+                { 
+                  "db" : "$input.params('db')",
+                  "wh" : "$input.params('wh')"
+                }

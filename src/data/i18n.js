@@ -38,6 +38,16 @@ i18n
             AmountTotal: 'Total Eggs',
             AmountToday: 'Today Eggs',
             Trolleys: 'Trolleys',
+            sensors: {
+              title: 'Sensors History',
+              0: 'Temperature',
+              2: 'Humidity',
+              3: 'Pressure',
+              8: 'CO2',
+            },
+            eggs: {
+              title: 'Daily Eggs History',
+            },
           },
           labelTrolleys: {
             all: 'All',

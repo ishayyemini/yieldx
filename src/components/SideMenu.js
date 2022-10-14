@@ -72,9 +72,8 @@ const SideMenu = ({ signOut }) => {
             <NavButton
               icon={<Icons.CloudSoftware />}
               label={
-                warehouses.find(
-                  (item) => item.UID === pathname.split('/').slice(-1)[0]
-                )?.Name || 'Warehouse'
+                warehouses[pathname.split('/').slice(-1)[0]]?.Name ||
+                'Warehouse'
               }
               to={pathname}
             />
