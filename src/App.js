@@ -88,7 +88,7 @@ const App = () => {
     user: '',
     settings: {},
   })
-  const [authStage, setAuthStage] = useState('loading')
+  const [authStage, setAuthStage] = useState('checkingAuth')
 
   // Load user from API on login/start
   const loadUser = useCallback(async () => {
@@ -103,6 +103,8 @@ const App = () => {
 
     // Check if logged in
     if (user) {
+      setGlobalState((old) => ({ ...old, warehouses: {} }))
+      setAuthStage('loading')
       loadUser().then(() => setAuthStage('loggedIn'))
     } else {
       setAuthStage('signIn')
@@ -116,6 +118,7 @@ const App = () => {
       setGlobalState((old) => ({ ...old, user }))
       API.configure({ user })
 
+      setAuthStage('loading')
       await loadUser()
       setAuthStage('loggedIn')
     },
@@ -134,7 +137,7 @@ const App = () => {
       <GlobalContext.Provider value={{ ...globalState, setGlobalState }}>
         <BrowserRouter>
           <GlobalStyle />
-          {authStage === 'loading' ? <LoadingIndicator loading /> : null}
+          {authStage === 'checkingAuth' ? <LoadingIndicator loading /> : null}
 
           {authStage === 'signIn' ? (
             <Routes>
@@ -143,16 +146,21 @@ const App = () => {
             </Routes>
           ) : null}
 
-          {authStage === 'loggedIn' ? (
+          {authStage === 'loading' || authStage === 'loggedIn' ? (
             <>
               <SideMenu signOut={signOut} />
-              <Routes>
-                <Route path={'/'} element={<Dashboard />} />
-                <Route path={'label-trolleys'} element={<LabelTrolleys />} />
-                <Route path={'settings'} element={<Settings />} />
-                <Route path={'warehouse/:UID'} element={<WarehouseView />} />
-                <Route path={'*'} element={<Navigate replace to={'/'} />} />
-              </Routes>
+              {authStage === 'loading' ? (
+                <LoadingIndicator loading overlay={false} />
+              ) : null}
+              {authStage === 'loggedIn' ? (
+                <Routes>
+                  <Route path={'/'} element={<Dashboard />} />
+                  <Route path={'label-trolleys'} element={<LabelTrolleys />} />
+                  <Route path={'settings'} element={<Settings />} />
+                  <Route path={'warehouse/:UID'} element={<WarehouseView />} />
+                  <Route path={'*'} element={<Navigate replace to={'/'} />} />
+                </Routes>
+              ) : null}
             </>
           ) : null}
         </BrowserRouter>

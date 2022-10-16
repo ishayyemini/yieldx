@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Box, Card, Text } from 'grommet'
 import { useTranslation } from 'react-i18next'
@@ -6,6 +6,7 @@ import Chart from 'react-apexcharts'
 
 import GlobalContext from './app/GlobalContext'
 import API from '../data/API'
+import { LoadingIndicator } from './app/AppComponents'
 
 const keysToShow = ['Trolleys', 'AmountTotal', 'AmountToday']
 
@@ -19,6 +20,10 @@ const WarehouseView = () => {
 
   const data = warehouses[UID] || {}
 
+  const [loading, toggleLoading] = useState(
+    !data.EggHistory || !data.SensorHistory
+  )
+
   /*
   Number of trolleys currently in House;
   Total number of eggs generated today;
@@ -26,7 +31,7 @@ const WarehouseView = () => {
    */
 
   useEffect(() => {
-    API.getSensorHistory(UID).then((res) => console.log(res))
+    API.getWHHistory(UID).then(() => toggleLoading(false))
   }, [])
 
   const sensors = useMemo(
@@ -46,18 +51,17 @@ const WarehouseView = () => {
   )
 
   const eggs = useMemo(
-    () =>
-      [0, 2, 3, 8].map((subType) => ({
-        name: t(`sensors.${subType}`),
-        type: 'line',
+    () => [
+      {
+        name: t(`eggs.chart`),
+        type: 'bar',
         data:
-          data.SensorHistory?.filter((item) => item.SubType === subType)
-            .slice(0, 100)
-            .map((wh) => ({
-              x: wh.DateModified,
-              y: Number(wh.Value).toFixed(3),
-            })) ?? [],
-      })),
+          data.EggHistory?.slice(0, 30).map((wh) => ({
+            x: wh.ReportDate,
+            y: Number(wh.DailyEggs),
+          })) ?? [],
+      },
+    ],
     [data.EggHistory]
   )
 
@@ -92,45 +96,51 @@ const WarehouseView = () => {
           </Card>
 
           <Card fill={'horizontal'} flex>
-            <Chart
-              options={{
-                chart: {
-                  id: 'sensors',
-                  toolbar: { show: false },
-                  zoom: { enabled: false },
-                },
-                legend: { show: false },
-                title: { text: t('sensors.title') },
-                xaxis: { type: 'datetime' },
-                tooltip: {
-                  x: { format: 'dd MMM HH:mm:ss' },
-                },
-              }}
-              series={sensors}
-              width={'100%'}
-              height={'100%'}
-            />
+            {loading ? (
+              <LoadingIndicator overlay={false} loading />
+            ) : (
+              <Chart
+                options={{
+                  chart: {
+                    id: 'sensors',
+                    toolbar: { show: false },
+                    zoom: { enabled: false },
+                  },
+                  legend: { show: false },
+                  title: { text: t('sensors.title') },
+                  xaxis: {
+                    type: 'datetime',
+                    labels: { format: 'dd MMM HH:mm:ss' },
+                  },
+                  tooltip: { x: { format: 'dd MMM HH:mm:ss' } },
+                }}
+                series={sensors}
+                width={'100%'}
+                height={'100%'}
+              />
+            )}
           </Card>
 
           <Card fill={'horizontal'} flex>
-            <Chart
-              options={{
-                chart: {
-                  id: 'sensors',
-                  toolbar: { show: false },
-                  zoom: { enabled: false },
-                },
-                legend: { show: false },
-                title: { text: t('eggs.title') },
-                xaxis: { type: 'datetime' },
-                tooltip: {
-                  x: { format: 'dd MMM HH:mm:ss' },
-                },
-              }}
-              series={eggs}
-              width={'100%'}
-              height={'100%'}
-            />
+            {loading ? (
+              <LoadingIndicator overlay={false} loading />
+            ) : (
+              <Chart
+                options={{
+                  chart: {
+                    id: 'eggs',
+                    toolbar: { show: false },
+                    zoom: { enabled: false },
+                  },
+                  legend: { show: false },
+                  title: { text: t('eggs.title') },
+                  xaxis: { type: 'datetime' },
+                }}
+                series={eggs}
+                width={'100%'}
+                height={'100%'}
+              />
+            )}
           </Card>
         </>
       ) : (

@@ -95,7 +95,9 @@ const LoadingIndicator = ({ loading, overlay = true }) => {
         {element}
       </Layer>
     ) : (
-      element
+      <Box align={'center'} justify={'center'} fill>
+        {element}
+      </Box>
     )
   ) : null
 }

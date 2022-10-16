@@ -46,6 +46,7 @@ i18n
               8: 'CO2',
             },
             eggs: {
+              chart: 'Daily Eggs',
               title: 'Daily Eggs History',
             },
           },

@@ -12,11 +12,12 @@ class APIClass {
 
   _updateContext(values) {
     if (typeof this._setGlobalState === 'function') {
-      this._setGlobalState((old) => {
+      this._setGlobalState((oldValues) => {
+        const newValues = { ...oldValues }
         Object.entries(values).forEach(([key, value]) =>
-          nestedProperty.set(old, key, value)
+          nestedProperty.set(newValues, key, value)
         )
-        return old
+        return newValues
       })
     }
   }
@@ -101,15 +102,18 @@ class APIClass {
       })
   }
 
-  async getSensorHistory(wh, update = true) {
+  async getWHHistory(wh, update = true) {
     return await fetch(
-      'https://ls72mt05m4.execute-api.us-east-1.amazonaws.com/dev/get-sensor-history?' +
+      'https://ls72mt05m4.execute-api.us-east-1.amazonaws.com/dev/get-wh-history?' +
         queryString.stringify({ db: this._config.user, wh })
     )
       .then((res) => res.json())
       .then((res) => {
         if (update)
-          this._updateContext({ [`warehouses.${wh}.SensorHistory`]: res })
+          this._updateContext({
+            [`warehouses.${wh}.SensorHistory`]: res.sensors,
+            [`warehouses.${wh}.EggHistory`]: res.eggs,
+          })
         return res
       })
   }
