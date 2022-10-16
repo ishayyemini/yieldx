@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 import API from '../data/API'
-import WarehouseWidget from './app/WarehouseWidget'
 import GlobalContext from './app/GlobalContext'
 
 const keysToShow = [
@@ -36,6 +35,10 @@ const Dashboard = () => {
   How often should this be updated? Indication of last update? Manual update?
    */
 
+  // TODO Get Garbage and Unknown WHs
+  // TODO Find way to simulate a lot more eggs
+  // TODO Switch between PS and Hatchery
+
   const { t } = useTranslation(null, { keyPrefix: 'dashboard' })
 
   const navigate = useNavigate()
@@ -48,8 +51,9 @@ const Dashboard = () => {
   const data = Object.values(warehouses)
     .filter(
       (item) =>
-        ['House', 'EggStorage', 'Loading Ramp'].includes(item.Type) &&
-        item.OwnerName === 'PS1'
+        (['House', 'EggStorage', 'Loading Ramp'].includes(item.Type) &&
+          item.OwnerName === 'PS1') ||
+        ['Garbage', 'Unknown'].includes(item.Type)
     )
     .slice(0, 12)
 
@@ -111,14 +115,8 @@ const Dashboard = () => {
         {genCubes('Loading Ramp')}
       </Box>
       <Box direction={'row'} basis={'100px'} justify={'stretch'} gap={'small'}>
-        <WarehouseWidget
-          kind={'Garbage'}
-          warehouses={data.filter((item) => item.Type === 'Garbage')}
-        />
-        <WarehouseWidget
-          kind={'Unknown'}
-          warehouses={data.filter((item) => item.Type === 'Unknown')}
-        />
+        {genCubes('Garbage')}
+        {genCubes('Unknown')}
       </Box>
     </Box>
   )
