@@ -36,7 +36,7 @@ class APIClass {
 
   async loadUser() {
     const settings = JSON.parse(localStorage.getItem('settings') || '{}')
-    const warehouses = await this.getWHAmounts(false).then((res) =>
+    const warehouses = await this.getWHList(false).then((res) =>
       Object.fromEntries(res.map((item) => [item.UID, item]))
     )
     this._updateContext({ settings, warehouses })
@@ -85,6 +85,21 @@ class APIClass {
       'https://ls72mt05m4.execute-api.us-east-1.amazonaws.com/dev/get-flock-wh-date?' +
         queryString.stringify({ db: this._config.user })
     ).then((res) => res.json())
+  }
+
+  async getWHList(update = true) {
+    return await fetch(
+      'https://ls72mt05m4.execute-api.us-east-1.amazonaws.com/dev/get-wh-list?' +
+        queryString.stringify({ db: this._config.user })
+    )
+      .then((res) => res.json())
+      .then((res) => {
+        if (update)
+          this._updateContext({
+            warehouses: Object.fromEntries(res.map((item) => [item.UID, item])),
+          })
+        return res
+      })
   }
 
   async getWHAmounts(update = true) {

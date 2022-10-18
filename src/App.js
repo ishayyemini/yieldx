@@ -93,6 +93,9 @@ const App = () => {
   // Load user from API on login/start
   const loadUser = useCallback(async () => {
     await API.loadUser()
+    setAuthStage('loading')
+    await API.getWHAmounts()
+    setAuthStage('loggedIn')
   }, [])
 
   // On start
@@ -104,8 +107,7 @@ const App = () => {
     // Check if logged in
     if (user) {
       setGlobalState((old) => ({ ...old, warehouses: {} }))
-      setAuthStage('loading')
-      loadUser().then(() => setAuthStage('loggedIn'))
+      loadUser().then()
     } else {
       setAuthStage('signIn')
     }
@@ -117,10 +119,7 @@ const App = () => {
       localStorage.setItem('user', user)
       setGlobalState((old) => ({ ...old, user }))
       API.configure({ user })
-
-      setAuthStage('loading')
       await loadUser()
-      setAuthStage('loggedIn')
     },
     [loadUser]
   )
@@ -131,6 +130,10 @@ const App = () => {
     setGlobalState({ user: '' })
     setAuthStage('signIn')
   }, [])
+
+  const farms = Object.values(globalState.warehouses ?? {}).filter((wh) =>
+    ['PSFarm', 'BRFarm'].includes(wh.Type)
+  )
 
   return (
     <Box direction={size === 'small' ? 'column' : 'row'} fill>
@@ -154,11 +157,22 @@ const App = () => {
               ) : null}
               {authStage === 'loggedIn' ? (
                 <Routes>
-                  <Route path={'/'} element={<Dashboard />} />
+                  {!farms.length ? (
+                    <Route path={'/'} element={<div />} />
+                  ) : null}
+                  <Route path={'farm/:UID'} element={<Dashboard />} />
+                  <Route path={'warehouse/:UID'} element={<WarehouseView />} />
                   <Route path={'label-trolleys'} element={<LabelTrolleys />} />
                   <Route path={'settings'} element={<Settings />} />
-                  <Route path={'warehouse/:UID'} element={<WarehouseView />} />
-                  <Route path={'*'} element={<Navigate replace to={'/'} />} />
+                  <Route
+                    path={'*'}
+                    element={
+                      <Navigate
+                        replace
+                        to={farms.length ? `farm/${farms[0].UID}` : '/'}
+                      />
+                    }
+                  />
                 </Routes>
               ) : null}
             </>

@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect } from 'react'
 import { Box, Card, Text } from 'grommet'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import API from '../data/API'
 import GlobalContext from './app/GlobalContext'
@@ -42,6 +42,7 @@ const Dashboard = () => {
   const { t } = useTranslation(null, { keyPrefix: 'dashboard' })
 
   const navigate = useNavigate()
+  const { pathname } = useLocation()
 
   useEffect(() => {
     const fetching = setInterval(() => API.getWHAmounts().then(), 15000)
@@ -51,8 +52,7 @@ const Dashboard = () => {
   const data = Object.values(warehouses)
     .filter(
       (item) =>
-        (['House', 'EggStorage', 'Loading Ramp'].includes(item.Type) &&
-          item.OwnerName === 'PS1') ||
+        item.OwnerName === warehouses[pathname.split('/').slice(-1)[0]]?.Name ||
         ['Garbage', 'Unknown'].includes(item.Type)
     )
     .slice(0, 12)

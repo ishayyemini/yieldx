@@ -79,6 +79,23 @@ functions:
                 { 
                   "db" : "$input.params('db')"
                 }
+  get_wh_list:
+    handler: get_wh_list.default
+    events:
+      - http:
+          method: get
+          path: get-wh-list
+          integration: lambda
+          cors: true
+          request:
+            parameters:
+              querystrings:
+                db: true
+            template:
+              application/json: |
+                { 
+                  "db" : "$input.params('db')"
+                }
   get_wh_amounts:
     handler: get_wh_amounts.default
     events:

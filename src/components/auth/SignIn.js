@@ -18,8 +18,8 @@ const SignIn = ({ signIn }) => {
     async ({ user }) => {
       toggleLoading(true)
       await API.login(user)
-        .then((exists) => {
-          if (exists) signIn(user)
+        .then(async (exists) => {
+          if (exists) await signIn(user)
           else setError('ERR_USER_DOESNT_EXIST')
         })
         .catch(() => setError('ERR_NETWORK'))

@@ -4,7 +4,7 @@ const get_wh_amounts = async ({ db, lastFetched }) => {
   if (!db) throw Error('Missing DB')
 
   console.log(
-    `Getting a list of Warehouses in ${db} ${
+    `Getting a detailed list of Warehouses in ${db} ${
       lastFetched ? `modified after ${lastFetched}` : ''
     }`
   )

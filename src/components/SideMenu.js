@@ -63,11 +63,16 @@ const SideMenu = ({ signOut }) => {
           overflow={'auto'}
           gap={'xsmall'}
         >
-          <NavButton
-            icon={<Icons.Dashboard />}
-            label={'Parent Stock'}
-            to={'/'}
-          />
+          {Object.values(warehouses)
+            .filter((wh) => ['PSFarm', 'BRFarm'].includes(wh.Type))
+            .map((wh) => (
+              <NavButton
+                icon={<Icons.Dashboard />}
+                label={wh.Name}
+                to={`/farm/${wh.UID}`}
+                key={wh.UID}
+              />
+            ))}
           {pathname.startsWith('/warehouse/') ? (
             <NavButton
               icon={<Icons.CloudSoftware />}
