@@ -17,6 +17,8 @@ const keysToShow = [
   'CO2',
 ]
 
+const lessKeys = ['Type', 'AmountTotal', 'AmountToday']
+
 const layout = (length) => {
   if (length <= 2) return '100'
   else if (length <= 6) return '50'
@@ -53,7 +55,7 @@ const Dashboard = () => {
     .filter(
       (item) =>
         item.OwnerName === warehouses[pathname.split('/').slice(-1)[0]]?.Name ||
-        ['Garbage', 'Unknown'].includes(item.Type)
+        ['Grabage', 'Unknown'].includes(item.Type)
     )
     .slice(0, 12)
 
@@ -63,7 +65,7 @@ const Dashboard = () => {
         .filter((item) => item.Type === type)
         .map((item) => (
           <Card
-            margin={'6px'}
+            margin={['Grabage', 'Unknown'].includes(item.Type) ? 'none' : '6px'}
             basis={`calc(${layout(data.length)}% - 12px)`}
             justify={'center'}
             align={'center'}
@@ -74,14 +76,20 @@ const Dashboard = () => {
             key={item.UID}
           >
             <Box pad={'small'}>
-              {keysToShow.map((key) => (
+              {(['Grabage', 'Unknown'].includes(item.Type)
+                ? lessKeys
+                : keysToShow
+              ).map((key) => (
                 <Text size={'small'} key={key}>
                   {t(key)}:
                 </Text>
               ))}
             </Box>
             <Box pad={'small'}>
-              {keysToShow.map((key) => (
+              {(['Grabage', 'Unknown'].includes(item.Type)
+                ? lessKeys
+                : keysToShow
+              ).map((key) => (
                 <Text
                   size={'small'}
                   weight={['AmountTotal'].includes(key) ? 'bold' : 'normal'}
@@ -115,7 +123,7 @@ const Dashboard = () => {
         {genCubes('Loading Ramp')}
       </Box>
       <Box direction={'row'} basis={'100px'} justify={'stretch'} gap={'small'}>
-        {genCubes('Garbage')}
+        {genCubes('Grabage')}
         {genCubes('Unknown')}
       </Box>
     </Box>
