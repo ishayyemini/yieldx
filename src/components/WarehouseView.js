@@ -57,7 +57,7 @@ const WarehouseView = () => {
         type: 'bar',
         data:
           data.EggHistory?.slice(0, 30).map((wh) => ({
-            x: wh.ReportDate,
+            x: wh.DateAdded,
             y: Number(wh.DailyEggs),
           })) ?? [],
       },

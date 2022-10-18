@@ -26,11 +26,15 @@ const get_wh_history = async ({ db, wh }) => {
                             WHID = '${wh}'))
   ORDER BY DateModified desc
   
-  SELECT ReportDate, sum(TotalProdEgg) as DailyEggs
-  FROM DailyReports 
-  WHERE ReportDate < getdate() and WHID  = '${wh}'
-  GROUP BY ReportDate
-  ORDER BY ReportDate desc
+  SELECT eggs.DateAdded, sum(eggs.Amount) as DailyEggs
+  FROM (
+      SELECT DestinationWH as WHID, CreateDate as DateAdded, Amount FROM EZTransactions
+      UNION
+      SELECT WHID, ReportDate as DateAdded, TotalProdEgg as Amount FROM DailyReports
+  ) eggs
+  WHERE eggs.DateAdded <= getdate() and eggs.WHID  = '${wh}'
+  GROUP BY eggs.DateAdded
+  ORDER BY eggs.DateAdded desc
 `
     )
     .then((res) => res.recordsets)
