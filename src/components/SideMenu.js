@@ -66,23 +66,28 @@ const SideMenu = ({ signOut }) => {
           {Object.values(warehouses)
             .filter((wh) => ['PSFarm', 'BRFarm'].includes(wh.Type))
             .map((wh) => (
-              <NavButton
-                icon={<Icons.Dashboard />}
-                label={wh.Name}
-                to={`/farm/${wh.UID}`}
-                key={wh.UID}
-              />
+              <>
+                <NavButton
+                  icon={<Icons.Dashboard />}
+                  label={wh.Name}
+                  to={`/farm/${wh.UID}`}
+                  key={wh.UID}
+                />
+                {pathname.startsWith('/warehouse/') &&
+                warehouses[pathname.split('/').slice(-1)[0]]?.OwnerName ===
+                  wh.Name ? (
+                  <NavButton
+                    icon={<Icons.CloudSoftware />}
+                    label={
+                      warehouses[pathname.split('/').slice(-1)[0]]?.Name ||
+                      'Warehouse'
+                    }
+                    margin={{ top: 'xsmall' }}
+                    to={pathname}
+                  />
+                ) : null}
+              </>
             ))}
-          {pathname.startsWith('/warehouse/') ? (
-            <NavButton
-              icon={<Icons.CloudSoftware />}
-              label={
-                warehouses[pathname.split('/').slice(-1)[0]]?.Name ||
-                'Warehouse'
-              }
-              to={pathname}
-            />
-          ) : null}
           <NavButton
             icon={<Icons.Tag />}
             label={'Label Trolleys'}
