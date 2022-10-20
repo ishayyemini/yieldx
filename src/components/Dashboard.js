@@ -96,8 +96,9 @@ const Dashboard = () => {
                   key={key}
                 >
                   {['Temp', 'Humidity', 'Baro', 'CO2'].includes(key)
-                    ? item[key]?.toFixed(2) || '---'
+                    ? item[key] || '---'
                     : item[key]}
+                  {key === 'Humidity' && item[key] ? '%' : ''}
                 </Text>
               ))}
             </Box>

@@ -18,12 +18,20 @@ const get_wh_history = async ({ db, wh }) => {
   const [sensors, eggs] = await new sql.Request()
     .query(
       `
-  SELECT DateModified, SubType, Value
+  SELECT DateModified, 
+         round(sum(CASE WHEN SubType = 0 
+                        THEN convert(float, Value) END) * 10, 1) as Temp,
+         round(sum(CASE WHEN SubType = 2 
+                        THEN convert(float, Value) END), 1) as Humidity,
+         round(sum(CASE WHEN SubType = 3 
+                        THEN convert(float, Value) END) * 100000, 0) as Baro,
+         sum(CASE WHEN SubType = 8 THEN convert(float, Value) END) as CO2
   FROM Sensors 
   WHERE SensorType = 10 and isnumeric(Value) = 1 and
         DeviceUID in (SELECT TrolleyUID FROM Products WHERE UID in 
                         (SELECT ProdID FROM WHProdAmount WHERE 
                             WHID = '${wh}'))
+  GROUP BY DateModified
   ORDER BY DateModified desc
   
   SELECT eggs.DateAdded, sum(eggs.Amount) as DailyEggs
@@ -37,7 +45,7 @@ const get_wh_history = async ({ db, wh }) => {
   ORDER BY eggs.DateAdded desc
 `
     )
-    .then((res) => res.recordsets)
+    .then((res) => [res.recordsets[0].map((item) => item), res.recordsets[1]])
     .catch((e) => console.log(e))
 
   sql.close()
@@ -50,3 +58,8 @@ const get_wh_history = async ({ db, wh }) => {
 }
 
 module.exports.default = get_wh_history
+
+get_wh_history({
+  db: 'ishay',
+  wh: '4A93AB7D-3A1E-4ED3-A09E-1E5DE95A4EE9',
+}).then((res) => console.log(res))

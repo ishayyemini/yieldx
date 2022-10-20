@@ -36,7 +36,8 @@ const get_wh_amounts = async ({ db, lastFetched }) => {
 		     Temp, Humidity, Baro, CO2
   FROM Warehouses 
   OUTER APPLY (
-  	SELECT [0] as Temp, [2] as Humidity, [3] as Baro, [8] as CO2
+    SELECT round([0] * 10, 1) as Temp, round([2], 1) as Humidity,
+    round([3] * 100000, 0) as Baro, [8] as CO2
   	FROM (
       SELECT SubType, convert(float, Value) as Value 
       FROM (

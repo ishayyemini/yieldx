@@ -40,10 +40,10 @@ i18n
             Trolleys: 'Trolleys',
             sensors: {
               title: 'Sensors History',
-              0: 'Temperature',
-              2: 'Humidity',
-              3: 'Pressure',
-              8: 'CO2',
+              Temp: 'Temperature',
+              Humidity: 'Humidity',
+              Baro: 'Pressure',
+              CO2: 'CO2',
             },
             eggs: {
               chart: 'Daily Eggs',

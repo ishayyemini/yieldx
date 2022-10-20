@@ -36,16 +36,14 @@ const WarehouseView = () => {
 
   const sensors = useMemo(
     () =>
-      [0, 2, 3, 8].map((subType) => ({
-        name: t(`sensors.${subType}`),
+      ['Temp', 'Humidity', 'Baro', 'CO2'].map((type) => ({
+        name: t(`sensors.${type}`),
         type: 'line',
         data:
-          data.SensorHistory?.filter((item) => item.SubType === subType)
-            .slice(0, 100)
-            .map((wh) => ({
-              x: wh.DateModified,
-              y: Number(wh.Value).toFixed(3),
-            })) ?? [],
+          data.SensorHistory?.slice(0, 300).map((wh) => [
+            new Date(wh.DateModified).getTime(),
+            wh[type],
+          ]) ?? [],
       })),
     [data.SensorHistory]
   )
@@ -74,72 +72,83 @@ const WarehouseView = () => {
     >
       {data ? (
         <>
-          <Card>
-            <Text weight={'bold'}>
-              {data.Name} - {data.Type}
-            </Text>
-          </Card>
-
-          <Card direction={'row'}>
-            <Box pad={'small'}>
-              {keysToShow.map((key) => (
-                <Text key={key}>{t(key)}:</Text>
-              ))}
-            </Box>
-            <Box pad={'small'}>
-              {keysToShow.map((key) => (
-                <Text weight={'bold'} key={key}>
-                  {data[key]}
+          <Box direction={'row'}>
+            <Box>
+              <Card>
+                <Text weight={'bold'} textAlign={'center'}>
+                  {data.Name} - {data.Type}
                 </Text>
-              ))}
+              </Card>
+
+              <Card direction={'row'}>
+                <Box pad={'small'}>
+                  {keysToShow.map((key) => (
+                    <Text key={key}>{t(key)}:</Text>
+                  ))}
+                </Box>
+                <Box pad={'small'}>
+                  {keysToShow.map((key) => (
+                    <Text weight={'bold'} key={key}>
+                      {data[key]}
+                    </Text>
+                  ))}
+                </Box>
+              </Card>
             </Box>
-          </Card>
+
+            <Card fill={'horizontal'} flex>
+              {loading ? (
+                <LoadingIndicator overlay={false} loading />
+              ) : (
+                <Chart
+                  options={{
+                    chart: {
+                      id: 'eggs',
+                      toolbar: { show: false },
+                      zoom: { enabled: false },
+                    },
+                    legend: { show: false },
+                    title: { text: t('eggs.title') },
+                    xaxis: { type: 'datetime' },
+                  }}
+                  series={eggs}
+                  width={'100%'}
+                  height={'100%'}
+                />
+              )}
+            </Card>
+          </Box>
 
           <Card fill={'horizontal'} flex>
             {loading ? (
               <LoadingIndicator overlay={false} loading />
             ) : (
-              <Chart
-                options={{
-                  chart: {
-                    id: 'sensors',
-                    toolbar: { show: false },
-                    zoom: { enabled: false },
-                  },
-                  legend: { show: false },
-                  title: { text: t('sensors.title') },
-                  xaxis: {
-                    type: 'datetime',
-                    labels: { format: 'dd MMM HH:mm:ss' },
-                  },
-                  tooltip: { x: { format: 'dd MMM HH:mm:ss' } },
-                }}
-                series={sensors}
-                width={'100%'}
-                height={'100%'}
-              />
-            )}
-          </Card>
-
-          <Card fill={'horizontal'} flex>
-            {loading ? (
-              <LoadingIndicator overlay={false} loading />
-            ) : (
-              <Chart
-                options={{
-                  chart: {
-                    id: 'eggs',
-                    toolbar: { show: false },
-                    zoom: { enabled: false },
-                  },
-                  legend: { show: false },
-                  title: { text: t('eggs.title') },
-                  xaxis: { type: 'datetime' },
-                }}
-                series={eggs}
-                width={'100%'}
-                height={'100%'}
-              />
+              sensors.slice(0, 3).map((item, index) => (
+                <Chart
+                  options={{
+                    chart: {
+                      id: item.name,
+                      // toolbar: { show: false },
+                      // zoom: { enabled: false },
+                      // group: 'sensors',
+                      type: 'line',
+                    },
+                    legend: { show: false },
+                    title: { text: item.name },
+                    xaxis: {
+                      type: 'datetime',
+                      labels: { format: 'dd MMM HH:mm:ss' },
+                    },
+                    dataLabels: { enabled: false },
+                    tooltip: { x: { format: 'dd MMM HH:mm:ss' } },
+                    colors: [['#008FFB', '#00E396', '#FEB019'][index]],
+                  }}
+                  series={[item]}
+                  width={'100%'}
+                  height={'33%'}
+                  key={index}
+                />
+              ))
             )}
           </Card>
         </>
