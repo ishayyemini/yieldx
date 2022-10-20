@@ -99,6 +99,7 @@ const Dashboard = () => {
                     ? item[key] || '---'
                     : item[key]}
                   {key === 'Humidity' && item[key] ? '%' : ''}
+                  {key === 'Temp' && item[key] ? '°C' : ''}
                 </Text>
               ))}
             </Box>
