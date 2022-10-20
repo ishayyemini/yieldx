@@ -72,15 +72,15 @@ const WarehouseView = () => {
     >
       {data ? (
         <>
-          <Box direction={'row'}>
-            <Box>
-              <Card>
+          <Box direction={'row'} margin={'small'} gap={'small'}>
+            <Box gap={'small'}>
+              <Card margin={'none'}>
                 <Text weight={'bold'} textAlign={'center'}>
                   {data.Name} - {data.Type}
                 </Text>
               </Card>
 
-              <Card direction={'row'}>
+              <Card direction={'row'} margin={'none'}>
                 <Box pad={'small'}>
                   {keysToShow.map((key) => (
                     <Text key={key}>{t(key)}:</Text>
@@ -96,7 +96,7 @@ const WarehouseView = () => {
               </Card>
             </Box>
 
-            <Card fill={'horizontal'} flex>
+            <Card fill={'horizontal'} margin={'none'} flex>
               {loading ? (
                 <LoadingIndicator overlay={false} loading />
               ) : (
