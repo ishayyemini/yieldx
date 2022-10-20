@@ -121,7 +121,7 @@ const Dashboard = () => {
         flex
       >
         {genCubes('House')}
-        {genCubes('EggStorage')}
+        {/*{genCubes('EggStorage')}*/}
         {genCubes('Loading Ramp')}
       </Box>
       <Box direction={'row'} basis={'100px'} justify={'stretch'} gap={'small'}>
