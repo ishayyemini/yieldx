@@ -19,6 +19,7 @@ i18n
             ERR_NETWORK: 'Network error',
           },
           dashboard: {
+            totalFarm: 'Total Eggs in Farm',
             Name: 'Name',
             Type: 'Type',
             AmountTotal: 'Total Eggs',
