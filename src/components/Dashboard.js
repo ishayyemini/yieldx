@@ -10,14 +10,13 @@ const keysToShow = [
   'Name',
   'Type',
   'AmountTotal',
-  'AmountToday',
   'Temp',
   'Humidity',
   'Baro',
   'CO2',
 ]
 
-const lessKeys = ['Type', 'AmountTotal', 'AmountToday']
+const lessKeys = ['Type', 'AmountTotal']
 
 const layout = (length) => {
   if (length <= 2) return '100'

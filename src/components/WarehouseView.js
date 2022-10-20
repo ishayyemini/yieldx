@@ -8,7 +8,7 @@ import GlobalContext from './app/GlobalContext'
 import API from '../data/API'
 import { LoadingIndicator } from './app/AppComponents'
 
-const keysToShow = ['Trolleys', 'AmountTotal', 'AmountToday']
+const keysToShow = ['Trolleys', 'AmountTotal']
 
 const WarehouseView = () => {
   const { warehouses } = useContext(GlobalContext)
@@ -80,7 +80,11 @@ const WarehouseView = () => {
                 </Text>
               </Card>
 
-              <Card direction={'row'} margin={'none'}>
+              <Card
+                direction={'row'}
+                margin={'none'}
+                pad={{ vertical: 'medium', horizontal: 'small' }}
+              >
                 <Box pad={'small'}>
                   {keysToShow.map((key) => (
                     <Text key={key}>{t(key)}:</Text>
