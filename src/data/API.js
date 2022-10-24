@@ -12,13 +12,15 @@ class APIClass {
 
   _updateContext(values) {
     if (typeof this._setGlobalState === 'function') {
-      this._setGlobalState((oldValues) => {
-        const newValues = { ...oldValues }
-        Object.entries(values).forEach(([key, value]) =>
-          nestedProperty.set(newValues, key, value)
-        )
-        return newValues
-      })
+      if (typeof values === 'object')
+        this._setGlobalState((oldValues) => {
+          const newValues = { ...oldValues }
+          Object.entries(values).forEach(([key, value]) =>
+            nestedProperty.set(newValues, key, value)
+          )
+          return newValues
+        })
+      else if (typeof values === 'function') this._setGlobalState(values)
     }
   }
 
@@ -95,9 +97,15 @@ class APIClass {
       .then((res) => res.json())
       .then((res) => {
         if (update)
-          this._updateContext({
-            warehouses: Object.fromEntries(res.map((item) => [item.UID, item])),
-          })
+          this._updateContext((oldData) => ({
+            ...oldData,
+            warehouses: Object.fromEntries(
+              res.map((wh) => [
+                wh.UID,
+                { ...oldData.warehouses?.[wh.UID], ...wh },
+              ])
+            ),
+          }))
         return res
       })
   }
@@ -110,9 +118,15 @@ class APIClass {
       .then((res) => res.json())
       .then((res) => {
         if (update)
-          this._updateContext({
-            warehouses: Object.fromEntries(res.map((item) => [item.UID, item])),
-          })
+          this._updateContext((oldData) => ({
+            ...oldData,
+            warehouses: Object.fromEntries(
+              res.map((wh) => [
+                wh.UID,
+                { ...oldData.warehouses?.[wh.UID], ...wh },
+              ])
+            ),
+          }))
         return res
       })
   }
@@ -125,10 +139,13 @@ class APIClass {
       .then((res) => res.json())
       .then((res) => {
         if (update)
-          this._updateContext({
-            [`warehouses.${wh}.SensorHistory`]: res.sensors,
-            [`warehouses.${wh}.EggHistory`]: res.eggs,
-          })
+          this._updateContext((oldData) => ({
+            ...oldData,
+            warehouses: {
+              ...oldData.warehouses,
+              [wh]: { ...oldData.warehouses[wh], ...res },
+            },
+          }))
         return res
       })
   }

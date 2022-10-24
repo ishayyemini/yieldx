@@ -1,8 +1,9 @@
 import { useContext, useEffect, useMemo, useState } from 'react'
-import { useLocation } from 'react-router-dom'
-import { Box, Card, Text } from 'grommet'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { Box, Card, CardHeader, Text } from 'grommet'
 import { useTranslation } from 'react-i18next'
 import Chart from 'react-apexcharts'
+import { ThreeDots } from 'react-loader-spinner'
 
 import GlobalContext from './app/GlobalContext'
 import API from '../data/API'
@@ -16,6 +17,7 @@ const WarehouseView = () => {
   const { t } = useTranslation(null, { keyPrefix: 'warehouseView' })
 
   const { pathname } = useLocation()
+  const navigate = useNavigate()
   const UID = pathname.split('/').slice(-1)[0]
 
   const data = warehouses[UID] || {}
@@ -84,6 +86,8 @@ const WarehouseView = () => {
                 direction={'row'}
                 margin={'none'}
                 pad={{ vertical: 'medium', horizontal: 'small' }}
+                flex={'grow'}
+                align={'center'}
               >
                 <Box pad={'small'}>
                   {keysToShow.map((key) => (
@@ -120,6 +124,47 @@ const WarehouseView = () => {
                   height={'100%'}
                 />
               )}
+            </Card>
+
+            <Card
+              margin={'none'}
+              pad={'none'}
+              height={{ max: '200px' }}
+              overflow={'auto'}
+            >
+              <CardHeader
+                background={'inherit'}
+                style={{ top: 0, position: 'sticky', zIndex: 1 }}
+                border={'bottom'}
+                margin={'none'}
+                pad={'small'}
+              >
+                <Text weight={'bold'}>{t('productList')}</Text>
+              </CardHeader>
+              {Object.values(data.Products ?? {}).map((item) => (
+                <Box
+                  onClick={() => navigate(`/product/${item.UID}`)}
+                  border={'bottom'}
+                  pad={'small'}
+                  flex={false}
+                  key={item.UID}
+                  hoverIndicator
+                >
+                  {item.hasOwnProperty('Name') ? (
+                    <>
+                      {item.Name} - {item.Amount}
+                    </>
+                  ) : (
+                    <Box align={'center'}>
+                      <ThreeDots
+                        height={'24px'}
+                        width={'30px'}
+                        color={'black'}
+                      />
+                    </Box>
+                  )}
+                </Box>
+              ))}
             </Card>
           </Box>
 

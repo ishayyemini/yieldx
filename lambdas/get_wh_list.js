@@ -17,14 +17,26 @@ const get_wh_list = async ({ db }) => {
   const warehouses = await new sql.Request()
     .query(
       `
-  SELECT Warehouses.UID as UID, Warehouses.Name as Name, 
-         WarehouseType.TypeDescription as Type
+  SELECT Warehouses.UID as UID, Warehouses.Name as Name, OwnerID,
+         TypeDescription as Type,
+         isnull(string_agg(convert(NVARCHAR(max), WHProdAmount.ProdID), ','),
+                '') as Products
   FROM Warehouses 
   INNER JOIN WarehouseType ON (WarehouseType.TypeID = Warehouses.Type)
-  GROUP BY Warehouses.UID, Warehouses.Name, WarehouseType.TypeDescription
+  LEFT JOIN WHProdAmount ON (WHProdAmount.WHID = Warehouses.UID and
+                             WHProdAmount.Amount > 0)
+  LEFT JOIN WHOwnerChilds ON (WHOwnerChilds.ChildID = Warehouses.UID)
+  GROUP BY Warehouses.UID, Warehouses.Name, OwnerID, TypeDescription
 `
     )
-    .then((res) => res.recordset)
+    .then((res) =>
+      res.recordset.map((item) => ({
+        ...item,
+        Products: Object.fromEntries(
+          item.Products.split(',').map((item) => [item, { UID: item }])
+        ),
+      }))
+    )
     .catch((e) => console.log(e))
 
   sql.close()

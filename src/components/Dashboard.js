@@ -53,7 +53,7 @@ const Dashboard = () => {
   const data = Object.values(warehouses)
     .filter(
       (item) =>
-        item.OwnerName === warehouses[pathname.split('/').slice(-1)[0]]?.Name ||
+        item.OwnerID === pathname.slice(pathname.indexOf('/farm/') + 6) ||
         ['Grabage', 'Unknown'].includes(item.Type)
     )
     .slice(0, 12)

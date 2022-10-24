@@ -12,6 +12,7 @@ import Settings from './components/Settings'
 import { LoadingIndicator } from './components/app/AppComponents'
 import Dashboard from './components/Dashboard'
 import WarehouseView from './components/WarehouseView'
+import ProductView from './components/ProductView'
 
 const GlobalStyle = createGlobalStyle`
   @font-face {
@@ -162,6 +163,7 @@ const App = () => {
                   ) : null}
                   <Route path={'farm/:UID'} element={<Dashboard />} />
                   <Route path={'warehouse/:UID'} element={<WarehouseView />} />
+                  <Route path={'product/:UID'} element={<ProductView />} />
                   <Route path={'label-trolleys'} element={<LabelTrolleys />} />
                   <Route path={'settings'} element={<Settings />} />
                   <Route

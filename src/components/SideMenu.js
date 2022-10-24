@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { Fragment, useContext } from 'react'
 import { Box, Button, Nav, ResponsiveContext, Sidebar } from 'grommet'
 import * as Icons from 'grommet-icons'
 import styled from 'styled-components'
@@ -44,6 +44,23 @@ const SideMenu = ({ signOut }) => {
     </>
   )
 
+  const currentProduct = Object.values(warehouses)
+    .map((wh) =>
+      Object.values(wh.Products ?? {}).find(
+        (product) =>
+          product.UID === pathname.slice(pathname.indexOf('/product/') + 9)
+      )
+    )
+    .find((item) => item)
+
+  const currentWarehouse =
+    warehouses[pathname.slice(pathname.indexOf('/warehouse/') + 11)] ||
+    Object.values(warehouses).find((wh) => wh.Products?.[currentProduct?.UID])
+
+  const currentFarm =
+    warehouses[pathname.slice(pathname.indexOf('/farm/') + 6)] ||
+    warehouses[currentWarehouse?.OwnerID]
+
   return (
     <Box
       pad={'small'}
@@ -66,27 +83,29 @@ const SideMenu = ({ signOut }) => {
           {Object.values(warehouses)
             .filter((wh) => ['PSFarm', 'BRFarm'].includes(wh.Type))
             .map((wh) => (
-              <>
+              <Fragment key={wh.UID}>
                 <NavButton
                   icon={<Icons.Dashboard />}
                   label={wh.Name}
                   to={`/farm/${wh.UID}`}
-                  key={wh.UID}
                 />
-                {pathname.startsWith('/warehouse/') &&
-                warehouses[pathname.split('/').slice(-1)[0]]?.OwnerName ===
-                  wh.Name ? (
+                {currentWarehouse && currentFarm.UID === wh.UID ? (
                   <NavButton
                     icon={<Icons.CloudSoftware />}
-                    label={
-                      warehouses[pathname.split('/').slice(-1)[0]]?.Name ||
-                      'Warehouse'
-                    }
+                    label={currentWarehouse.Name || 'Warehouse'}
                     margin={{ top: 'xsmall' }}
-                    to={pathname}
+                    to={`/warehouse/${currentWarehouse.UID}`}
                   />
                 ) : null}
-              </>
+                {currentProduct && currentFarm.UID === wh.UID ? (
+                  <NavButton
+                    icon={<Icons.ProductHunt />}
+                    label={currentProduct.Name || 'Warehouse'}
+                    margin={{ top: 'xsmall' }}
+                    to={`/product/${currentProduct.UID}`}
+                  />
+                ) : null}
+              </Fragment>
             ))}
           <NavButton
             icon={<Icons.Tag />}

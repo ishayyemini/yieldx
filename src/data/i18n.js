@@ -31,6 +31,7 @@ i18n
           },
           warehouseView: {
             empty: 'Warehouse not found',
+            productList: 'Products',
             House: 'House',
             EggStorage: 'Egg Storage',
             'Loading Ramp': 'Loading Ramp',

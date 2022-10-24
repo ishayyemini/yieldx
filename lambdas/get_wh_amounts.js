@@ -21,9 +21,8 @@ const get_wh_amounts = async ({ db, lastFetched }) => {
   const warehouses = await new sql.Request()
     .query(
       `
-  SELECT Warehouses.UID as UID, Warehouses.Name as Name, 
-         WarehouseType.TypeDescription as Type,
-         count(WHProdAmount.Amount) as Trolleys,
+  SELECT Warehouses.UID as UID, Name, TypeDescription as Type,
+         count(Amount) as Trolleys,
          isnull((SELECT sum(Amount) FROM WHProdAmount WHERE Amount > 0 and 
                  WHID = Warehouses.UID), 0) as AmountTotal,
          (SELECT isnull(sum(CASE WHEN CONVERT(DATE, ReportDate) = 
@@ -31,9 +30,7 @@ const get_wh_amounts = async ({ db, lastFetched }) => {
                                  THEN TotalProdEgg
                             END), 0) FROM DailyReports WHERE WHID 
                                             = Warehouses.UID) as AmountToday,
-         max(WHProdAmount.DateModified) as DateModified,
-         ParentWH.Name as OwnerName, ParentType.TypeDescription as OwnerType,
-		     Temp, Humidity, Baro, CO2
+         OwnerID, Temp, Humidity, Baro, CO2
   FROM Warehouses 
   OUTER APPLY (
     SELECT round([0] * 10, 1) as Temp, round([2], 1) as Humidity,
@@ -54,12 +51,8 @@ const get_wh_amounts = async ({ db, lastFetched }) => {
   INNER JOIN WarehouseType ON (WarehouseType.TypeID = Warehouses.Type)
   LEFT JOIN WHProdAmount ON (WHProdAmount.WHID = Warehouses.UID)
   LEFT JOIN WHOwnerChilds ON (WHOwnerChilds.ChildID = Warehouses.UID)
-  LEFT JOIN Warehouses as ParentWH ON (ParentWH.UID = WHOwnerChilds.OwnerID)
-  LEFT JOIN WarehouseType as ParentType ON (ParentType.TypeID = ParentWH.Type)
-  WHERE isnull(WHProdAmount.DateModified, Warehouses.DateModified) 
-            > '${lastFetched || ''}'
-  GROUP BY Warehouses.UID, Warehouses.Name, WarehouseType.TypeDescription,
-           ParentWH.Name, ParentType.TypeDescription, Temp, Humidity, Baro, CO2
+  GROUP BY Warehouses.UID, Name, TypeDescription, OwnerID, Temp, Humidity,
+           Baro, CO2
 `
     )
     .then((res) => res.recordset)
