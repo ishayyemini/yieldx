@@ -15,7 +15,7 @@ const get_wh_history = async ({ db, wh }) => {
   }
   await sql.connect(config).catch((e) => console.log(e))
 
-  const [SensorHistory, EggHistory, Products] = await new sql.Request()
+  const [SensorHistory, EggHistory] = await new sql.Request()
     .query(
       `
   SELECT DateModified, 
@@ -43,30 +43,18 @@ const get_wh_history = async ({ db, wh }) => {
   WHERE eggs.DateAdded <= getdate() and eggs.WHID  = '${wh}'
   GROUP BY eggs.DateAdded
   ORDER BY eggs.DateAdded desc
-  
-  SELECT UID, Name, LayingDate, Amount
-  FROM Products
-  INNER JOIN WHProdAmount ON (WHProdAmount.ProdID = Products.UID and
-                              WHProdAmount.Amount > 0)
-  WHERE WHID = '${wh}'
 `
     )
-    .then((res) => [
-      res.recordsets[0],
-      res.recordsets[1],
-      Object.fromEntries(res.recordsets[2].map((item) => [item.UID, item])),
-    ])
+    .then((res) => res.recordsets)
     .catch((e) => console.log(e))
 
   sql.close()
 
   console.log(
-    `Done, got ${SensorHistory.length} sensor records, ${
-      EggHistory.length
-    } egg records and ${Object.keys(Products).length} products`
+    `Done, got ${SensorHistory.length} sensor records and ${EggHistory.length} egg records`
   )
 
-  return { SensorHistory, EggHistory, Products }
+  return { SensorHistory, EggHistory }
 }
 
 module.exports.default = get_wh_history

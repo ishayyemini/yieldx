@@ -14,36 +14,31 @@ const get_wh_list = async ({ db }) => {
   }
   await sql.connect(config).catch((e) => console.log(e))
 
-  const warehouses = await new sql.Request()
+  const [warehouses, products] = await new sql.Request()
     .query(
       `
   SELECT Warehouses.UID as UID, Warehouses.Name as Name, OwnerID,
-         TypeDescription as Type,
-         isnull(string_agg(convert(NVARCHAR(max), WHProdAmount.ProdID), ','),
-                '') as Products
+         TypeDescription as Type
   FROM Warehouses 
   INNER JOIN WarehouseType ON (WarehouseType.TypeID = Warehouses.Type)
-  LEFT JOIN WHProdAmount ON (WHProdAmount.WHID = Warehouses.UID and
-                             WHProdAmount.Amount > 0)
   LEFT JOIN WHOwnerChilds ON (WHOwnerChilds.ChildID = Warehouses.UID)
   GROUP BY Warehouses.UID, Warehouses.Name, OwnerID, TypeDescription
+  
+  SELECT UID, Name, LayingDate, WHID, Amount
+  FROM Products
+  INNER JOIN WHProdAmount ON (WHProdAmount.ProdID = UID and Amount > 0)
 `
     )
-    .then((res) =>
-      res.recordset.map((item) => ({
-        ...item,
-        Products: Object.fromEntries(
-          item.Products.split(',').map((item) => [item, { UID: item }])
-        ),
-      }))
-    )
+    .then((res) => res.recordsets)
     .catch((e) => console.log(e))
 
   sql.close()
 
-  console.log(`Done, there are ${warehouses.length} warehouses`)
+  console.log(
+    `Done, there are ${warehouses.length} warehouses and ${products.length} products`
+  )
 
-  return warehouses
+  return { warehouses, products }
 }
 
 module.exports.default = get_wh_list

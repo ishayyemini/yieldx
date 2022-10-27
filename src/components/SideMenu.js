@@ -34,7 +34,7 @@ const NavButton = ({ to, ...props }) => {
 
 const SideMenu = ({ signOut }) => {
   const size = useContext(ResponsiveContext)
-  const { warehouses } = useContext(GlobalContext)
+  const { warehouses, products } = useContext(GlobalContext)
 
   const { pathname } = useLocation()
 
@@ -44,18 +44,12 @@ const SideMenu = ({ signOut }) => {
     </>
   )
 
-  const currentProduct = Object.values(warehouses)
-    .map((wh) =>
-      Object.values(wh.Products ?? {}).find(
-        (product) =>
-          product.UID === pathname.slice(pathname.indexOf('/product/') + 9)
-      )
-    )
-    .find((item) => item)
+  const currentProduct =
+    products[pathname.slice(pathname.indexOf('/product/') + 9)]
 
   const currentWarehouse =
     warehouses[pathname.slice(pathname.indexOf('/warehouse/') + 11)] ||
-    Object.values(warehouses).find((wh) => wh.Products?.[currentProduct?.UID])
+    warehouses[currentProduct?.WHID]
 
   const currentFarm =
     warehouses[pathname.slice(pathname.indexOf('/farm/') + 6)] ||

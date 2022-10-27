@@ -107,7 +107,7 @@ const App = () => {
 
     // Check if logged in
     if (user) {
-      setGlobalState((old) => ({ ...old, warehouses: {} }))
+      setGlobalState((old) => ({ ...old, warehouses: {}, products: {} }))
       loadUser().then()
     } else {
       setAuthStage('signIn')

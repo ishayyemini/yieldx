@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Box, Card, CardHeader, Text } from 'grommet'
 import { useTranslation } from 'react-i18next'
 import Chart from 'react-apexcharts'
-import { ThreeDots } from 'react-loader-spinner'
 
 import GlobalContext from './app/GlobalContext'
 import API from '../data/API'
@@ -12,7 +11,7 @@ import { LoadingIndicator } from './app/AppComponents'
 const keysToShow = ['Trolleys', 'AmountTotal']
 
 const WarehouseView = () => {
-  const { warehouses } = useContext(GlobalContext)
+  const { warehouses, products } = useContext(GlobalContext)
 
   const { t } = useTranslation(null, { keyPrefix: 'warehouseView' })
 
@@ -64,6 +63,8 @@ const WarehouseView = () => {
     ],
     [data.EggHistory]
   )
+
+  console.log(products)
 
   return (
     <Box
@@ -141,30 +142,24 @@ const WarehouseView = () => {
               >
                 <Text weight={'bold'}>{t('productList')}</Text>
               </CardHeader>
-              {Object.values(data.Products ?? {}).map((item) => (
-                <Box
-                  onClick={() => navigate(`/product/${item.UID}`)}
-                  border={'bottom'}
-                  pad={'small'}
-                  flex={false}
-                  key={item.UID}
-                  hoverIndicator
-                >
-                  {item.hasOwnProperty('Name') ? (
-                    <>
-                      {item.Name} - {item.Amount}
-                    </>
-                  ) : (
-                    <Box align={'center'}>
-                      <ThreeDots
-                        height={'24px'}
-                        width={'30px'}
-                        color={'black'}
-                      />
+              {loading ? (
+                <LoadingIndicator overlay={false} loading />
+              ) : (
+                data.Products?.filter((prodID) => products[prodID]).map(
+                  (prodID) => (
+                    <Box
+                      onClick={() => navigate(`/product/${prodID}`)}
+                      border={'bottom'}
+                      pad={'small'}
+                      flex={false}
+                      key={prodID}
+                      hoverIndicator
+                    >
+                      {products[prodID].Name} - {products[prodID].Amount}
                     </Box>
-                  )}
-                </Box>
-              ))}
+                  )
+                )
+              )}
             </Card>
           </Box>
 

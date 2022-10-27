@@ -38,10 +38,11 @@ class APIClass {
 
   async loadUser() {
     const settings = JSON.parse(localStorage.getItem('settings') || '{}')
-    const warehouses = await this.getWHList(false).then((res) =>
-      Object.fromEntries(res.map((item) => [item.UID, item]))
-    )
-    this._updateContext({ settings, warehouses })
+    const [warehouses, products] = await this.getWHList(false).then((res) => [
+      Object.fromEntries(res.warehouses.map((item) => [item.UID, item])),
+      Object.fromEntries(res.products.map((item) => [item.UID, item])),
+    ])
+    this._updateContext({ settings, warehouses, products })
   }
 
   async login(user) {
@@ -100,9 +101,15 @@ class APIClass {
           this._updateContext((oldData) => ({
             ...oldData,
             warehouses: Object.fromEntries(
-              res.map((wh) => [
+              res.warehouses.map((wh) => [
                 wh.UID,
                 { ...oldData.warehouses?.[wh.UID], ...wh },
+              ])
+            ),
+            products: Object.fromEntries(
+              res.products.map((product) => [
+                product.UID,
+                { ...oldData.products?.[product.UID], ...product },
               ])
             ),
           }))
@@ -117,6 +124,7 @@ class APIClass {
     )
       .then((res) => res.json())
       .then((res) => {
+        console.log(res)
         if (update)
           this._updateContext((oldData) => ({
             ...oldData,

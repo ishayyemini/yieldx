@@ -23,6 +23,8 @@ const get_wh_amounts = async ({ db, lastFetched }) => {
       `
   SELECT Warehouses.UID as UID, Name, TypeDescription as Type,
          count(Amount) as Trolleys,
+         isnull(string_agg(convert(NVARCHAR(max), WHProdAmount.ProdID), ','),
+                '') as Products,
          isnull((SELECT sum(Amount) FROM WHProdAmount WHERE Amount > 0 and 
                  WHID = Warehouses.UID), 0) as AmountTotal,
          (SELECT isnull(sum(CASE WHEN CONVERT(DATE, ReportDate) = 
@@ -55,7 +57,12 @@ const get_wh_amounts = async ({ db, lastFetched }) => {
            Baro, CO2
 `
     )
-    .then((res) => res.recordset)
+    .then((res) =>
+      res.recordset.map((item) => ({
+        ...item,
+        Products: item.Products.split(','),
+      }))
+    )
     .catch((e) => console.log(e))
 
   sql.close()
