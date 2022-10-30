@@ -157,6 +157,25 @@ class APIClass {
         return res
       })
   }
+
+  async getProductHistory(uid, update = true) {
+    return await fetch(
+      'https://ls72mt05m4.execute-api.us-east-1.amazonaws.com/dev/get-product-history?' +
+        queryString.stringify({ db: this._config.user, uid })
+    )
+      .then((res) => res.json())
+      .then((res) => {
+        if (update)
+          this._updateContext((oldData) => ({
+            ...oldData,
+            products: {
+              ...oldData.products,
+              [uid]: { ...oldData.products[uid], History: res },
+            },
+          }))
+        return res
+      })
+  }
 }
 
 const API = new APIClass()

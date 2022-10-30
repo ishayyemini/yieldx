@@ -133,3 +133,22 @@ functions:
                   "db" : "$input.params('db')",
                   "wh" : "$input.params('wh')"
                 }
+  get_product_history:
+    handler: get_product_history.default
+    events:
+      - http:
+          method: get
+          path: get-product-history
+          integration: lambda
+          cors: true
+          request:
+            parameters:
+              querystrings:
+                db: true
+                uid: true
+            template:
+              application/json: |
+                { 
+                  "db" : "$input.params('db')",
+                  "uid" : "$input.params('uid')"
+                }
