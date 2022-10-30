@@ -33,7 +33,7 @@ const WarehouseView = () => {
 
   useEffect(() => {
     API.getWHHistory(UID).then(() => toggleLoading(false))
-  }, [])
+  }, [UID])
 
   const sensors = useMemo(
     () =>
@@ -46,7 +46,7 @@ const WarehouseView = () => {
             wh[type],
           ]) ?? [],
       })),
-    [data.SensorHistory]
+    [t, data.SensorHistory]
   )
 
   const eggs = useMemo(
@@ -61,7 +61,7 @@ const WarehouseView = () => {
           })) ?? [],
       },
     ],
-    [data.EggHistory]
+    [t, data.EggHistory]
   )
 
   console.log(products)

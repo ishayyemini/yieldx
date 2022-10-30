@@ -104,7 +104,7 @@ const Dashboard = () => {
             </Box>
           </Card>
         )),
-    [data, t]
+    [navigate, data, t]
   )
 
   const farm = warehouses[pathname.split('/').slice(-1)[0]]
