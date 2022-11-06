@@ -1,5 +1,5 @@
-import { Fragment, useContext } from 'react'
-import { Box, Button, Nav, ResponsiveContext, Sidebar } from 'grommet'
+import { useContext } from 'react'
+import { Box, Button, ResponsiveContext, Sidebar } from 'grommet'
 import * as Icons from 'grommet-icons'
 import styled from 'styled-components'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -9,6 +9,7 @@ import GlobalContext from './app/GlobalContext'
 const NavButtonStyled = styled(Button).attrs({
   plain: true,
   hoverIndicator: true,
+  margin: { bottom: 'xsmall' },
 })`
   padding: 11px 22px;
   border-radius: 18px;
@@ -16,6 +17,23 @@ const NavButtonStyled = styled(Button).attrs({
 
   > div {
     justify-content: start;
+  }
+`
+
+const DynamicNav = styled(Box).attrs({
+  direction: 'none',
+  flex: 'none',
+})`
+  height: 100%;
+  width: 690px;
+  left: -${(props) => props.page * 230}px;
+  position: relative;
+  transition: left 0.3s;
+
+  > div {
+    width: 200px;
+    margin-right: 30px;
+    flex: none;
   }
 `
 
@@ -66,53 +84,75 @@ const SideMenu = ({ signOut }) => {
         background={'var(--main)'}
         gap={'medium'}
         direction={size === 'small' ? 'row' : 'column'}
-        overflow={'auto'}
+        // flex={false}
         footer={size !== 'small' ? footerElements : null}
       >
-        <Nav
-          direction={size === 'small' ? 'row' : 'column'}
-          overflow={'auto'}
-          gap={'xsmall'}
-        >
-          {Object.values(warehouses)
-            .filter((wh) => ['PSFarm', 'BRFarm'].includes(wh.Type))
-            .map((wh) => (
-              <Fragment key={wh.UID}>
-                <NavButton
-                  icon={<Icons.Dashboard />}
-                  label={wh.Name}
-                  to={`/farm/${wh.UID}`}
-                />
-                {currentWarehouse && currentFarm.UID === wh.UID ? (
+        <Box width={{ max: '200px', min: '200px' }} overflow={'hidden'} fill>
+          <DynamicNav
+            page={0 + (currentWarehouse ? 1 : 0) + (currentProduct ? 1 : 0)}
+          >
+            <Box>
+              {Object.values(warehouses)
+                .filter((wh) => ['PSFarm', 'BRFarm'].includes(wh.Type))
+                .map((wh) => (
                   <NavButton
-                    icon={<Icons.CloudSoftware />}
-                    label={currentWarehouse.Name || 'Warehouse'}
-                    margin={{ top: 'xsmall' }}
-                    to={`/warehouse/${currentWarehouse.UID}`}
+                    icon={<Icons.Organization />}
+                    label={wh.Name}
+                    to={`/farm/${wh.UID}`}
+                    key={wh.UID}
                   />
-                ) : null}
-                {currentProduct && currentFarm.UID === wh.UID ? (
+                ))}
+              <Box flex={'grow'} />
+              <NavButton
+                icon={<Icons.Tag />}
+                label={'Label Trolleys'}
+                to={'/label-trolleys'}
+              />
+              <NavButton
+                icon={<Icons.SettingsOption />}
+                label={'Settings'}
+                to={'/settings'}
+              />
+              {size === 'small' ? footerElements : null}
+            </Box>
+
+            <Box>
+              <NavButton
+                icon={<Icons.LinkPrevious />}
+                label={'Back'}
+                to={`/farm/${currentFarm.UID}`}
+              />
+              {Object.values(warehouses)
+                .filter((wh) => wh.OwnerID === currentFarm.UID)
+                .map((wh) => (
                   <NavButton
-                    icon={<Icons.ProductHunt />}
-                    label={currentProduct.Name || 'Warehouse'}
-                    margin={{ top: 'xsmall' }}
-                    to={`/product/${currentProduct.UID}`}
+                    icon={<Icons.Home />}
+                    label={wh.Name}
+                    to={`/warehouse/${wh.UID}`}
+                    key={wh.UID}
                   />
-                ) : null}
-              </Fragment>
-            ))}
-          <NavButton
-            icon={<Icons.Tag />}
-            label={'Label Trolleys'}
-            to={'/label-trolleys'}
-          />
-          <NavButton
-            icon={<Icons.SettingsOption />}
-            label={'Settings'}
-            to={'/settings'}
-          />
-          {size === 'small' ? footerElements : null}
-        </Nav>
+                ))}
+            </Box>
+
+            <Box>
+              <NavButton
+                icon={<Icons.LinkPrevious />}
+                label={'Back'}
+                to={`/warehouse/${currentWarehouse?.UID}`}
+              />
+              {currentWarehouse?.Products?.filter((uid) => products[uid]).map(
+                (uid) => (
+                  <NavButton
+                    icon={<Icons.Cart />}
+                    label={products[uid].Name}
+                    to={`/product/${uid}`}
+                    key={uid}
+                  />
+                )
+              )}
+            </Box>
+          </DynamicNav>
+        </Box>
       </Sidebar>
     </Box>
   )
