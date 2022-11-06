@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { Box, Card, CardHeader, Text } from 'grommet'
+import { useLocation } from 'react-router-dom'
+import { Box, Card } from 'grommet'
 import { useTranslation } from 'react-i18next'
 import Chart from 'react-apexcharts'
 
@@ -8,15 +8,12 @@ import GlobalContext from './app/GlobalContext'
 import API from '../data/API'
 import { LoadingIndicator } from './app/AppComponents'
 
-const keysToShow = ['Trolleys', 'AmountTotal']
-
 const WarehouseView = () => {
   const { warehouses, products } = useContext(GlobalContext)
 
   const { t } = useTranslation(null, { keyPrefix: 'warehouseView' })
 
   const { pathname } = useLocation()
-  const navigate = useNavigate()
   const UID = pathname.split('/').slice(-1)[0]
 
   const data = warehouses[UID] || {}
@@ -67,103 +64,36 @@ const WarehouseView = () => {
   console.log(products)
 
   return (
-    <Box
-      flex={'grow'}
-      pad={{ horizontal: 'small' }}
-      basis={'60%'}
-      align={'center'}
-    >
+    <Box flex={'grow'} pad={'small'} basis={'60%'} align={'center'}>
       {data ? (
         <>
-          <Box direction={'row'} margin={'small'} gap={'small'}>
-            <Box gap={'small'}>
-              <Card margin={'none'}>
-                <Text weight={'bold'} textAlign={'center'}>
-                  {data.Name} - {data.Type}
-                </Text>
-              </Card>
+          <Card
+            fill={'horizontal'}
+            margin={{ bottom: 'small' }}
+            flex={{ grow: 1 }}
+          >
+            {loading ? (
+              <LoadingIndicator overlay={false} loading />
+            ) : (
+              <Chart
+                options={{
+                  chart: {
+                    id: 'eggs',
+                    toolbar: { show: false },
+                    zoom: { enabled: false },
+                  },
+                  legend: { show: false },
+                  title: { text: t('eggs.title') },
+                  xaxis: { type: 'datetime' },
+                }}
+                series={eggs}
+                width={'100%'}
+                height={'100%'}
+              />
+            )}
+          </Card>
 
-              <Card
-                direction={'row'}
-                margin={'none'}
-                pad={{ vertical: 'medium', horizontal: 'small' }}
-                flex={'grow'}
-                align={'center'}
-              >
-                <Box pad={'small'}>
-                  {keysToShow.map((key) => (
-                    <Text key={key}>{t(key)}:</Text>
-                  ))}
-                </Box>
-                <Box pad={'small'}>
-                  {keysToShow.map((key) => (
-                    <Text weight={'bold'} key={key}>
-                      {data[key]}
-                    </Text>
-                  ))}
-                </Box>
-              </Card>
-            </Box>
-
-            <Card fill={'horizontal'} margin={'none'} flex>
-              {loading ? (
-                <LoadingIndicator overlay={false} loading />
-              ) : (
-                <Chart
-                  options={{
-                    chart: {
-                      id: 'eggs',
-                      toolbar: { show: false },
-                      zoom: { enabled: false },
-                    },
-                    legend: { show: false },
-                    title: { text: t('eggs.title') },
-                    xaxis: { type: 'datetime' },
-                  }}
-                  series={eggs}
-                  width={'100%'}
-                  height={'100%'}
-                />
-              )}
-            </Card>
-
-            <Card
-              margin={'none'}
-              pad={'none'}
-              height={{ max: '200px' }}
-              overflow={'auto'}
-            >
-              <CardHeader
-                background={'inherit'}
-                style={{ top: 0, position: 'sticky', zIndex: 1 }}
-                border={'bottom'}
-                margin={'none'}
-                pad={'small'}
-              >
-                <Text weight={'bold'}>{t('productList')}</Text>
-              </CardHeader>
-              {loading ? (
-                <LoadingIndicator overlay={false} loading />
-              ) : (
-                data.Products?.filter((prodID) => products[prodID]).map(
-                  (prodID) => (
-                    <Box
-                      onClick={() => navigate(`/product/${prodID}`)}
-                      border={'bottom'}
-                      pad={'small'}
-                      flex={false}
-                      key={prodID}
-                      hoverIndicator
-                    >
-                      {products[prodID].Name} - {products[prodID].Amount}
-                    </Box>
-                  )
-                )
-              )}
-            </Card>
-          </Box>
-
-          <Card fill={'horizontal'} flex>
+          <Card margin={'none'} fill={'horizontal'} flex={{ grow: 5 }}>
             {loading ? (
               <LoadingIndicator overlay={false} loading />
             ) : (

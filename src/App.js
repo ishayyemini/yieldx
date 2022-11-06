@@ -10,9 +10,11 @@ import GlobalContext from './components/app/GlobalContext'
 import API from './data/API'
 import Settings from './components/Settings'
 import { LoadingIndicator } from './components/app/AppComponents'
-import Dashboard from './components/Dashboard'
+import WarehouseList from './components/WarehouseList'
 import WarehouseView from './components/WarehouseView'
 import ProductView from './components/ProductView'
+import FarmList from './components/FarmList'
+import ProductList from './components/ProductList'
 
 const GlobalStyle = createGlobalStyle`
   @font-face {
@@ -132,10 +134,6 @@ const App = () => {
     setAuthStage('signIn')
   }, [])
 
-  const farms = Object.values(globalState.warehouses ?? {}).filter((wh) =>
-    ['PSFarm', 'BRFarm'].includes(wh.Type)
-  )
-
   return (
     <Box direction={size === 'small' ? 'column' : 'row'} fill>
       <GlobalContext.Provider value={{ ...globalState, setGlobalState }}>
@@ -158,23 +156,17 @@ const App = () => {
               ) : null}
               {authStage === 'loggedIn' ? (
                 <Routes>
-                  {!farms.length ? (
-                    <Route path={'/'} element={<div />} />
-                  ) : null}
-                  <Route path={'farm/:UID'} element={<Dashboard />} />
+                  <Route path={'/'} element={<FarmList />} />
+                  <Route path={'farm/:UID'} element={<WarehouseList />} />
                   <Route path={'warehouse/:UID'} element={<WarehouseView />} />
+                  <Route
+                    path={'warehouse/:UID/products'}
+                    element={<ProductList />}
+                  />
                   <Route path={'product/:UID'} element={<ProductView />} />
                   <Route path={'label-trolleys'} element={<LabelTrolleys />} />
                   <Route path={'settings'} element={<Settings />} />
-                  <Route
-                    path={'*'}
-                    element={
-                      <Navigate
-                        replace
-                        to={farms.length ? `farm/${farms[0].UID}` : '/'}
-                      />
-                    }
-                  />
+                  <Route path={'*'} element={<Navigate replace to={'/'} />} />
                 </Routes>
               ) : null}
             </>

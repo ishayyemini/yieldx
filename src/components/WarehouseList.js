@@ -25,7 +25,7 @@ const layout = (length) => {
   else return '25'
 }
 
-const Dashboard = () => {
+const WarehouseList = () => {
   const { warehouses } = useContext(GlobalContext)
   /*
   What do we need to see here?
@@ -107,23 +107,8 @@ const Dashboard = () => {
     [navigate, data, t]
   )
 
-  const farm = warehouses[pathname.split('/').slice(-1)[0]]
-
   return (
     <Box gap={'small'} pad={'small'} flex={'grow'} basis={'60%'}>
-      <Box direction={'row'} gap={'small'} justify={'center'}>
-        <Card margin={'none'}>
-          <Text weight={'bold'} textAlign={'center'}>
-            {farm?.Name} - {farm?.Type}
-          </Text>
-        </Card>
-        <Card margin={'none'}>
-          <Text weight={'bold'} textAlign={'center'}>
-            {t('totalFarm')} -{' '}
-            {data.reduce((total, wh) => total + wh.AmountTotal, 0)}
-          </Text>
-        </Card>
-      </Box>
       <Box
         direction={'row'}
         width={{ max: 'none', min: 'calc(100% + 12px)' }}
@@ -144,4 +129,4 @@ const Dashboard = () => {
   )
 }
 
-export default Dashboard
+export default WarehouseList

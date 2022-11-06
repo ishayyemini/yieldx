@@ -7,6 +7,8 @@ import { useTranslation } from 'react-i18next'
 
 import GlobalContext from './app/GlobalContext'
 
+const menuWidth = 210
+
 const NavButtonStyled = styled(Button).attrs({
   plain: true,
   hoverIndicator: true,
@@ -26,13 +28,13 @@ const DynamicNav = styled(Box).attrs({
   flex: 'none',
 })`
   height: 100%;
-  width: 690px;
-  left: -${(props) => props.page * 230}px;
+  width: ${(menuWidth + 30) * 3}px;
+  left: -${(props) => props.page * (menuWidth + 30)}px;
   position: relative;
   transition: left 0.3s;
 
   > div {
-    width: 200px;
+    width: ${menuWidth}px;
     margin-right: 30px;
     flex: none;
   }
@@ -56,6 +58,19 @@ const NavButton = ({ to, ...props }) => {
   )
 }
 
+/*
+Farm list 
+Farm -> Warehouse list
+        Farm summary
+          
+        Warehouse -> Product list
+                     Filter by alerts
+                     Label products
+                     Warehouse summary
+                     
+                     Product -> Product summary
+ */
+
 const SideMenu = ({ signOut }) => {
   const size = useContext(ResponsiveContext)
   const { warehouses, products } = useContext(GlobalContext)
@@ -66,6 +81,7 @@ const SideMenu = ({ signOut }) => {
 
   const footerElements = (
     <>
+      <Box border={'top'} margin={{ top: 'small' }} />
       <NavButton icon={<Icons.Logout />} label={'Sign Out'} onClick={signOut} />
     </>
   )
@@ -74,7 +90,8 @@ const SideMenu = ({ signOut }) => {
     products[pathname.slice(pathname.indexOf('/product/') + 9)]
 
   const currentWarehouse =
-    warehouses[pathname.slice(pathname.indexOf('/warehouse/') + 11)] ||
+    (pathname.startsWith('/warehouse/') &&
+      warehouses[pathname.split('/')[2]]) ||
     warehouses[currentProduct?.WHID]
 
   const currentFarm =
@@ -95,23 +112,35 @@ const SideMenu = ({ signOut }) => {
         // flex={false}
         footer={size !== 'small' ? footerElements : null}
       >
-        <Box width={{ max: '200px', min: '200px' }} overflow={'hidden'} fill>
+        <Box
+          width={{ max: menuWidth + 'px', min: menuWidth + 'px' }}
+          overflow={'hidden'}
+          fill
+        >
           <DynamicNav
-            page={0 + (currentWarehouse ? 1 : 0) + (currentProduct ? 1 : 0)}
+            page={
+              0 +
+              (currentFarm ? 1 : 0) +
+              (currentWarehouse ? 1 : 0) +
+              (currentProduct ? 1 : 0)
+            }
           >
             <Box>
               <NavHeader>{t('farms')}</NavHeader>
-              {Object.values(warehouses)
-                .filter((wh) => ['PSFarm', 'BRFarm'].includes(wh.Type))
-                .map((wh) => (
-                  <NavButton
-                    icon={<Icons.Organization />}
-                    label={wh.Name}
-                    to={`/farm/${wh.UID}`}
-                    key={wh.UID}
-                  />
-                ))}
-              <Box flex={'grow'} />
+              <NavHeader>
+                {t('total')} -{' '}
+                {Object.values(warehouses).reduce(
+                  (total, wh) => total + wh.AmountTotal,
+                  0
+                ) ?? 0}
+              </NavHeader>
+              <NavButton
+                icon={<Icons.Projects />}
+                label={t('farmList')}
+                to={`/`}
+              />
+              <Box border={'top'} margin={{ top: 'small' }} />
+
               <NavHeader>{t('general')}</NavHeader>
               <NavButton
                 icon={<Icons.Tag />}
@@ -123,45 +152,70 @@ const SideMenu = ({ signOut }) => {
                 label={'Settings'}
                 to={'/settings'}
               />
-              {size === 'small' ? footerElements : null}
             </Box>
 
             <Box>
               <NavButton
                 icon={<Icons.LinkPrevious />}
-                label={'Back'}
-                to={`/farm/${currentFarm.UID}`}
+                label={t('backToFarms')}
+                to={`/`}
               />
-              <NavHeader>{t('warehouses')}</NavHeader>
-              {Object.values(warehouses)
-                .filter((wh) => wh.OwnerID === currentFarm.UID)
-                .map((wh) => (
-                  <NavButton
-                    icon={<Icons.Home />}
-                    label={wh.Name}
-                    to={`/warehouse/${wh.UID}`}
-                    key={wh.UID}
-                  />
-                ))}
+              <Box border={'top'} />
+
+              <NavHeader>
+                {currentFarm?.Name} - {currentFarm?.Type}
+              </NavHeader>
+              <NavHeader>
+                {t('total')} -{' '}
+                {Object.values(warehouses).reduce(
+                  (total, wh) =>
+                    total +
+                    (wh.OwnerID === currentFarm?.UID ? wh.AmountTotal : 0),
+                  0
+                ) || 0}
+              </NavHeader>
+              <NavButton
+                icon={<Icons.Projects />}
+                label={t('warehouseList')}
+                to={`/farm/${currentFarm?.UID}`}
+              />
             </Box>
 
             <Box>
               <NavButton
                 icon={<Icons.LinkPrevious />}
-                label={'Back'}
+                label={t('backToWarehouses')}
+                to={`/farm/${currentFarm?.UID}`}
+              />
+              <Box border={'top'} />
+
+              <NavHeader>
+                {currentWarehouse?.Name} - {currentWarehouse?.Type}
+              </NavHeader>
+              <NavHeader>
+                {t('total')} - {currentWarehouse?.AmountTotal ?? 0}
+              </NavHeader>
+              <NavHeader>
+                {t('trolleys')} - {currentWarehouse?.Trolleys ?? 0}
+              </NavHeader>
+              <NavButton
+                icon={<Icons.LineChart />}
+                label={t('whOverview')}
                 to={`/warehouse/${currentWarehouse?.UID}`}
               />
-              <NavHeader>{t('products')}</NavHeader>
-              {currentWarehouse?.Products?.filter((uid) => products[uid]).map(
-                (uid) => (
-                  <NavButton
-                    icon={<Icons.Cart />}
-                    label={products[uid].Name}
-                    to={`/product/${uid}`}
-                    key={uid}
-                  />
-                )
-              )}
+              <NavButton
+                icon={<Icons.Cubes />}
+                label={t('productList')}
+                to={`/warehouse/${currentWarehouse?.UID}/products`}
+              />
+            </Box>
+
+            <Box>
+              <NavButton
+                icon={<Icons.LinkPrevious />}
+                label={t('backToWH')}
+                to={`/warehouse/${currentWarehouse?.UID}`}
+              />
             </Box>
           </DynamicNav>
         </Box>

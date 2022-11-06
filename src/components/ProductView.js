@@ -55,7 +55,7 @@ const ProductView = () => {
         }))
       )
     }
-  }, [setNodes, product.History])
+  }, [setNodes, setEdges, product.History])
 
   return (
     <ReactFlow
