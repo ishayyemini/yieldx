@@ -1,8 +1,9 @@
 import { useContext } from 'react'
-import { Box, Button, ResponsiveContext, Sidebar } from 'grommet'
+import { Box, Button, ResponsiveContext, Sidebar, Text } from 'grommet'
 import * as Icons from 'grommet-icons'
 import styled from 'styled-components'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 import GlobalContext from './app/GlobalContext'
 
@@ -37,6 +38,11 @@ const DynamicNav = styled(Box).attrs({
   }
 `
 
+const NavHeader = styled(Text).attrs({
+  weight: 'bold',
+  margin: { vertical: 'small', horizontal: 'medium' },
+})``
+
 const NavButton = ({ to, ...props }) => {
   const navigate = useNavigate()
   const { pathname } = useLocation()
@@ -55,6 +61,8 @@ const SideMenu = ({ signOut }) => {
   const { warehouses, products } = useContext(GlobalContext)
 
   const { pathname } = useLocation()
+
+  const { t } = useTranslation(null, { keyPrefix: 'sideMenu' })
 
   const footerElements = (
     <>
@@ -92,6 +100,7 @@ const SideMenu = ({ signOut }) => {
             page={0 + (currentWarehouse ? 1 : 0) + (currentProduct ? 1 : 0)}
           >
             <Box>
+              <NavHeader>{t('farms')}</NavHeader>
               {Object.values(warehouses)
                 .filter((wh) => ['PSFarm', 'BRFarm'].includes(wh.Type))
                 .map((wh) => (
@@ -103,6 +112,7 @@ const SideMenu = ({ signOut }) => {
                   />
                 ))}
               <Box flex={'grow'} />
+              <NavHeader>{t('general')}</NavHeader>
               <NavButton
                 icon={<Icons.Tag />}
                 label={'Label Trolleys'}
@@ -122,6 +132,7 @@ const SideMenu = ({ signOut }) => {
                 label={'Back'}
                 to={`/farm/${currentFarm.UID}`}
               />
+              <NavHeader>{t('warehouses')}</NavHeader>
               {Object.values(warehouses)
                 .filter((wh) => wh.OwnerID === currentFarm.UID)
                 .map((wh) => (
@@ -140,6 +151,7 @@ const SideMenu = ({ signOut }) => {
                 label={'Back'}
                 to={`/warehouse/${currentWarehouse?.UID}`}
               />
+              <NavHeader>{t('products')}</NavHeader>
               {currentWarehouse?.Products?.filter((uid) => products[uid]).map(
                 (uid) => (
                   <NavButton

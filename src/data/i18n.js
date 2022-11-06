@@ -89,6 +89,13 @@ i18n
               },
             },
           },
+          sideMenu: {
+            farms: 'Farms',
+            general: 'General',
+            warehouses: 'Warehouses',
+            products: 'Products',
+            actions: 'Actions',
+          },
         },
       },
     },
