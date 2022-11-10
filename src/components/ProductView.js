@@ -1,9 +1,10 @@
-import { memo, useContext, useEffect } from 'react'
+import { memo, useContext, useEffect, useMemo, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import ReactFlow, {
   Background,
   Controls,
   Handle,
+  MarkerType,
   MiniMap,
   useEdgesState,
   useNodesState,
@@ -26,16 +27,18 @@ const whColors = {
   ChickHall: '#f2e782',
 }
 
+const farmColors = {
+  PSFarm: '#91300d',
+  Hatchery: '#9b0f4c',
+  BRFarm: '#11b26a',
+}
+
 const ProductNode = memo(({ data }) => {
   const { warehouses } = useContext(GlobalContext)
   const wh = warehouses[data.DestinationWH] ?? {}
 
   return (
-    <Card
-      margin={'none'}
-      background={whColors[wh.Type]}
-      width={{ max: '210px' }}
-    >
+    <Card margin={'none'} background={whColors[wh.Type]} width={'210px'}>
       {!data.start ? (
         <Handle type={'target'} position={'left'} isConnectable={false} />
       ) : null}
@@ -63,10 +66,24 @@ const ProductNode = memo(({ data }) => {
   )
 })
 
-const nodeTypes = { custom: ProductNode }
+const FarmNode = memo(({ data }) => (
+  <Box width={`${250 * data.whCount}px`} pad={{ horizontal: 'xsmall' }}>
+    <Card
+      height={`${Math.max(97, data.height) + 75}px`}
+      background={farmColors[data.Type]}
+      width={'100%'}
+      margin={'none'}
+    >
+      {data.Name} - {data.Type}
+    </Card>
+  </Box>
+))
+
+const nodeTypes = { product: ProductNode, farm: FarmNode }
 
 const ProductView = () => {
-  const { products } = useContext(GlobalContext)
+  const flowRef = useRef()
+  const { warehouses, products } = useContext(GlobalContext)
 
   const { pathname } = useLocation()
 
@@ -80,29 +97,55 @@ const ProductView = () => {
   const [nodes, setNodes] = useNodesState(initialNodes)
   const [edges, setEdges] = useEdgesState(initialEdges)
 
+  const highest = useMemo(() => {
+    if (product.History?.length)
+      return Math.max(
+        ...[
+          ...(flowRef.current?.querySelectorAll('div[data-id*="product-"]') ||
+            []),
+        ].map((element) => element.clientHeight)
+      )
+    else return 0
+  }, [product.History])
+
   useEffect(() => {
     if (product.History?.length) {
-      setNodes(
-        product.History.map((item, index, array) => ({
-          id: index.toString(),
-          position: { x: index * 250, y: 0 },
-          data: {
-            ...item,
-            start: index === 0,
-            end: index === array.length - 1,
-          },
-          type: 'custom',
-        }))
-      )
+      const whNodes = product.History.map((item, index, array) => ({
+        id: `product-${index}`,
+        position: { x: index * 250, y: 50 },
+        data: {
+          ...item,
+          start: index === 0,
+          end: index === array.length - 1,
+        },
+        type: 'product',
+      }))
+      const farmNodes = product.History.reduce((array, item) => {
+        const farm = warehouses[warehouses[item.DestinationWH]?.OwnerID]
+        if (farm && farm.UID !== array.slice(-1)[0]?.data.UID)
+          array.push({
+            id: `farm-${array.length}`,
+            position: { x: product.History.indexOf(item) * 250 - 20, y: 0 },
+            data: { ...farm, whCount: 1, height: highest },
+            type: 'farm',
+          })
+        else if (farm) array.slice(-1)[0].data.whCount++
+
+        return array
+      }, [])
+      setNodes([...farmNodes, ...whNodes])
       setEdges(
         product.History.map((item, index) => ({
-          id: `${index - 1}-${index}`,
-          source: (index - 1).toString(),
-          target: index.toString(),
+          id: `${index}-${index + 1}`,
+          source: `product-${index}`,
+          target: `product-${index + 1}`,
+          style: { strokeWidth: 2 },
+          markerEnd: { type: MarkerType.Arrow, strokeWidth: 2 },
+          zIndex: 1,
         }))
       )
     }
-  }, [setNodes, setEdges, product.History])
+  }, [highest, setNodes, setEdges, product.History, warehouses])
 
   return (
     <ReactFlow
@@ -114,6 +157,7 @@ const ProductView = () => {
       nodesFocusable={false}
       edgesFocusable={false}
       fitView
+      ref={flowRef}
     >
       <MiniMap />
       <Controls />
