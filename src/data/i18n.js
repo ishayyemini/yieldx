@@ -114,7 +114,12 @@ i18n
           },
           productView: {
             productHistory: 'Product History',
-            sensorHistory: 'Sensor History',
+            sensors: {
+              Temp: 'Temperature',
+              Humidity: 'Humidity',
+              Baro: 'Pressure',
+              CO2: 'CO2',
+            },
           },
         },
       },

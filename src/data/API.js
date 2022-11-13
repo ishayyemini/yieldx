@@ -170,7 +170,7 @@ class APIClass {
             ...oldData,
             products: {
               ...oldData.products,
-              [uid]: { ...oldData.products[uid], History: res },
+              [uid]: { ...oldData.products[uid], ...res },
             },
           }))
         return res

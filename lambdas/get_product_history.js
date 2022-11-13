@@ -15,42 +15,66 @@ const get_product_history = async ({ db, uid }) => {
   }
   await sql.connect(config).catch((e) => console.log(e))
 
-  const history = await new sql.Request()
+  const [TransHistory, SensorHistory] = await new sql.Request()
     .query(
       `
   WITH Parents as (
-    SELECT UID, Name, ParentProduct, FlockWHID, LayingDate, InitAmount
+    SELECT UID, Name, ParentProduct, FlockWHID, LayingDate, InitAmount, 
+           TrolleyUID
     FROM Products
     WHERE UID = '${uid}'
     UNION ALL
-    SELECT c.UID, c.Name, c.ParentProduct, c.FlockWHID, c.LayingDate, c.InitAmount
+    SELECT c.UID, c.Name, c.ParentProduct, c.FlockWHID, c.LayingDate, 
+           c.InitAmount, c.TrolleyUID
     FROM Products c
     JOIN Parents p on p.ParentProduct = c.UID 
   ) 
   
   SELECT * 
+  INTO #ProductHistory
   FROM (
     SELECT TOP 1 UID as Product, Name, LayingDate as CreateDate,
            null as SourceWH, FlockWHID as DestinationWH, InitAmount as Amount, 
-           ParentProduct 
+           ParentProduct, TrolleyUID
     FROM Parents 
     ORDER BY CreateDate
   ) as foobar
   UNION ALL
-  SELECT Product, Name, CreateDate, SourceWH, DestinationWH, Amount, ParentProduct
+  SELECT Product, Name, CreateDate, SourceWH, DestinationWH, Amount,
+         ParentProduct, TrolleyUID
   FROM Parents p
   JOIN EZTransactions on p.UID = Product
   ORDER BY CreateDate
+
+  SELECT * FROM #ProductHistory
+  
+  SELECT DateModified, 
+         round(sum(CASE WHEN SubType = 0 
+                        THEN convert(float, Value) END) * 10, 1) as Temp,
+         round(sum(CASE WHEN SubType = 2 
+                        THEN convert(float, Value) END), 1) as Humidity,
+         round(sum(CASE WHEN SubType = 3 
+                        THEN convert(float, Value) END) * 100000, 0) as Baro,
+         sum(CASE WHEN SubType = 8 THEN convert(float, Value) END) as CO2
+  FROM Sensors 
+  WHERE SensorType = 10 and isnumeric(Value) = 1 and
+        DeviceUID in (SELECT TrolleyUID FROM #ProductHistory)
+  GROUP BY DateModified
+  ORDER BY DateModified desc
+
+  DROP TABLE #ProductHistory
 `
     )
-    .then((res) => res.recordset)
+    .then((res) => res.recordsets)
     .catch((e) => console.log(e))
 
   sql.close()
 
-  console.log(`Done, got ${history.length} records`)
+  console.log(
+    `Done, got ${TransHistory.length} product history records and ${SensorHistory.length} sensor records`
+  )
 
-  return history
+  return { TransHistory, SensorHistory }
 }
 
 module.exports.default = get_product_history

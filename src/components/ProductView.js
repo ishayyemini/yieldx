@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useMemo, useRef } from 'react'
+import { memo, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import ReactFlow, {
   Background,
@@ -9,10 +9,12 @@ import ReactFlow, {
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 import { Box, Card, Text } from 'grommet'
+import Chart from 'react-apexcharts'
+import { useTranslation } from 'react-i18next'
 
 import GlobalContext from './app/GlobalContext'
 import API from '../data/API'
-import { useTranslation } from 'react-i18next'
+import { LoadingIndicator } from './app/AppComponents'
 
 const initialNodes = []
 const initialEdges = []
@@ -89,17 +91,21 @@ const ProductView = () => {
   const UID = pathname.slice(pathname.indexOf('/product/') + 9)
   const product = products[UID]
 
+  const [loading, toggleLoading] = useState(
+    !product.EggHistory || !product.SensorHistory
+  )
+
   const { t } = useTranslation(null, { keyPrefix: 'productView' })
 
   useEffect(() => {
-    API.getProductHistory(UID).then()
+    API.getProductHistory(UID).then(() => toggleLoading(false))
   }, [UID])
 
   const [nodes, setNodes] = useNodesState(initialNodes)
   const [edges, setEdges] = useEdgesState(initialEdges)
 
   const highest = useMemo(() => {
-    if (product.History?.length)
+    if (product.TransHistory?.length)
       return Math.max(
         ...[
           ...(flowRef.current?.querySelectorAll('div[data-id*="product-"]') ||
@@ -107,11 +113,11 @@ const ProductView = () => {
         ].map((element) => element.clientHeight)
       )
     else return 0
-  }, [product.History])
+  }, [product.TransHistory])
 
   useEffect(() => {
-    if (product.History?.length) {
-      const whNodes = product.History.map((item, index, array) => ({
+    if (product.TransHistory?.length) {
+      const whNodes = product.TransHistory.map((item, index, array) => ({
         id: `product-${index}`,
         position: { x: index * 250, y: 50 },
         data: {
@@ -121,12 +127,15 @@ const ProductView = () => {
         },
         type: 'product',
       }))
-      const farmNodes = product.History.reduce((array, item) => {
+      const farmNodes = product.TransHistory.reduce((array, item) => {
         const farm = warehouses[warehouses[item.DestinationWH]?.OwnerID]
         if (farm && farm.UID !== array.slice(-1)[0]?.data.UID)
           array.push({
             id: `farm-${array.length}`,
-            position: { x: product.History.indexOf(item) * 250 - 20, y: 0 },
+            position: {
+              x: product.TransHistory.indexOf(item) * 250 - 20,
+              y: 0,
+            },
             data: { ...farm, whCount: 1, height: highest },
             type: 'farm',
           })
@@ -136,7 +145,7 @@ const ProductView = () => {
       }, [])
       setNodes([...farmNodes, ...whNodes])
       setEdges(
-        product.History.map((item, index) => ({
+        product.TransHistory.map((item, index) => ({
           id: `${index}-${index + 1}`,
           source: `product-${index}`,
           target: `product-${index + 1}`,
@@ -146,11 +155,25 @@ const ProductView = () => {
         }))
       )
     }
-  }, [highest, setNodes, setEdges, product.History, warehouses])
+  }, [highest, setNodes, setEdges, product.TransHistory, warehouses])
+
+  const sensors = useMemo(
+    () =>
+      ['Temp', 'Humidity', 'Baro', 'CO2'].map((type) => ({
+        name: t(`sensors.${type}`),
+        type: 'line',
+        data:
+          product.SensorHistory?.slice(0, 300).map((wh) => [
+            new Date(wh.DateModified).getTime(),
+            wh[type],
+          ]) ?? [],
+      })),
+    [t, product.SensorHistory]
+  )
 
   return (
     <Box flex={'grow'} pad={'small'} gap={'small'}>
-      <Card height={'50%'} pad={'none'} margin={'none'} overflow={'hidden'}>
+      <Card height={'30%'} pad={'none'} margin={'none'} overflow={'hidden'}>
         <Box
           style={{ position: 'absolute', zIndex: 10 }}
           pad={'small'}
@@ -159,22 +182,53 @@ const ProductView = () => {
         >
           <Text weight={'bold'}>{t('productHistory')}</Text>
         </Box>
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          nodeTypes={nodeTypes}
-          nodesDraggable={false}
-          nodesConnectable={false}
-          nodesFocusable={false}
-          edgesFocusable={false}
-          fitView
-          ref={flowRef}
-        >
-          <Background />
-        </ReactFlow>
+        {loading ? (
+          <LoadingIndicator overlay={false} loading />
+        ) : (
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            nodeTypes={nodeTypes}
+            nodesDraggable={false}
+            nodesConnectable={false}
+            nodesFocusable={false}
+            edgesFocusable={false}
+            fitView
+            ref={flowRef}
+          >
+            <Background />
+          </ReactFlow>
+        )}
       </Card>
-      <Card height={'50%'} margin={'none'}>
-        <Text weight={'bold'}>{t('sensorHistory')}</Text>
+      <Card height={'70%'} margin={'none'}>
+        {loading ? (
+          <LoadingIndicator overlay={false} loading />
+        ) : (
+          sensors.slice(0, 3).map((item, index) => (
+            <Chart
+              options={{
+                chart: {
+                  id: item.name,
+                  type: 'line',
+                  fontFamily: '"Lato", sans-serif',
+                },
+                legend: { show: false },
+                title: { text: item.name },
+                xaxis: {
+                  type: 'datetime',
+                  labels: { format: 'dd MMM HH:mm:ss' },
+                },
+                dataLabels: { enabled: false },
+                tooltip: { x: { format: 'dd MMM HH:mm:ss' } },
+                colors: [['#008FFB', '#00E396', '#FEB019'][index]],
+              }}
+              series={[item]}
+              width={'100%'}
+              height={'33%'}
+              key={index}
+            />
+          ))
+        )}
       </Card>
     </Box>
   )
