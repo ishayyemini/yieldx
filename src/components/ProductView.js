@@ -9,12 +9,11 @@ import ReactFlow, {
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 import { Box, Card, Text } from 'grommet'
-import Chart from 'react-apexcharts'
 import { useTranslation } from 'react-i18next'
 
 import GlobalContext from './app/GlobalContext'
 import API from '../data/API'
-import { LoadingIndicator } from './app/AppComponents'
+import { LoadingIndicator, SensorsChart } from './app/AppComponents'
 
 const initialNodes = []
 const initialEdges = []
@@ -89,7 +88,7 @@ const ProductView = () => {
   const { pathname } = useLocation()
 
   const UID = pathname.slice(pathname.indexOf('/product/') + 9)
-  const product = products[UID]
+  const product = products[UID] ?? {}
 
   const [loading, toggleLoading] = useState(
     !product.EggHistory || !product.SensorHistory
@@ -157,20 +156,6 @@ const ProductView = () => {
     }
   }, [highest, setNodes, setEdges, product.TransHistory, warehouses])
 
-  const sensors = useMemo(
-    () =>
-      ['Temp', 'Humidity', 'Baro', 'CO2'].map((type) => ({
-        name: t(`sensors.${type}`),
-        type: 'line',
-        data:
-          product.SensorHistory?.slice(0, 300).map((wh) => [
-            new Date(wh.DateModified).getTime(),
-            wh[type],
-          ]) ?? [],
-      })),
-    [t, product.SensorHistory]
-  )
-
   return (
     <Box flex={'grow'} pad={'small'} gap={'small'}>
       <Card height={'30%'} pad={'none'} margin={'none'} overflow={'hidden'}>
@@ -204,30 +189,7 @@ const ProductView = () => {
         {loading ? (
           <LoadingIndicator overlay={false} loading />
         ) : (
-          sensors.slice(0, 3).map((item, index) => (
-            <Chart
-              options={{
-                chart: {
-                  id: item.name,
-                  type: 'line',
-                  fontFamily: '"Lato", sans-serif',
-                },
-                legend: { show: false },
-                title: { text: item.name },
-                xaxis: {
-                  type: 'datetime',
-                  labels: { format: 'dd MMM HH:mm:ss' },
-                },
-                dataLabels: { enabled: false },
-                tooltip: { x: { format: 'dd MMM HH:mm:ss' } },
-                colors: [['#008FFB', '#00E396', '#FEB019'][index]],
-              }}
-              series={[item]}
-              width={'100%'}
-              height={'33%'}
-              key={index}
-            />
-          ))
+          <SensorsChart data={product.SensorHistory} />
         )}
       </Card>
     </Box>

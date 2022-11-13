@@ -11,7 +11,9 @@ import {
 } from 'chart.js'
 import { Bar } from 'react-chartjs-2'
 import { MutatingDots } from 'react-loader-spinner'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import Chart from 'react-apexcharts'
+import { useTranslation } from 'react-i18next'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
@@ -102,4 +104,54 @@ const LoadingIndicator = ({ loading, overlay = true }) => {
   ) : null
 }
 
-export { CardWrapper, ChartCard, FormButtons, CHeader, LoadingIndicator }
+const SensorsChart = ({ data }) => {
+  const { t } = useTranslation(null, {
+    keyPrefix: 'appComponents.sensorsChart',
+  })
+
+  const sensors = useMemo(
+    () =>
+      ['Temp', 'Humidity', 'Baro', 'CO2'].map((type) => ({
+        name: type,
+        type: 'line',
+        data:
+          data
+            ?.slice(0, 300)
+            .map((item) => [new Date(item.DateCreate).getTime(), item[type]]) ??
+          [],
+      })),
+    [data]
+  )
+
+  return sensors.slice(0, 3).map((item, index) => (
+    <Chart
+      options={{
+        chart: {
+          id: item.name,
+          type: 'line',
+          fontFamily: '"Lato", sans-serif',
+        },
+        stroke: { curve: 'smooth', width: 3 },
+        legend: { show: false },
+        title: { text: t(item.name) },
+        xaxis: { type: 'datetime', labels: { format: 'dd MMM' } },
+        dataLabels: { enabled: false },
+        tooltip: { x: { format: 'dd MMM HH:mm:ss' } },
+        colors: [['#008FFB', '#00E396', '#FEB019'][index]],
+      }}
+      series={[item]}
+      width={'100%'}
+      height={'33%'}
+      key={index}
+    />
+  ))
+}
+
+export {
+  CardWrapper,
+  ChartCard,
+  FormButtons,
+  CHeader,
+  LoadingIndicator,
+  SensorsChart,
+}

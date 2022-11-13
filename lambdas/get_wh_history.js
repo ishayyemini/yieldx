@@ -18,7 +18,7 @@ const get_wh_history = async ({ db, wh }) => {
   const [SensorHistory, EggHistory] = await new sql.Request()
     .query(
       `
-  SELECT DateModified, 
+  SELECT DateCreate, 
          round(sum(CASE WHEN SubType = 0 
                         THEN convert(float, Value) END) * 10, 1) as Temp,
          round(sum(CASE WHEN SubType = 2 
@@ -31,8 +31,8 @@ const get_wh_history = async ({ db, wh }) => {
         DeviceUID in (SELECT TrolleyUID FROM Products WHERE UID in 
                         (SELECT ProdID FROM WHProdAmount WHERE 
                             WHID = '${wh}'))
-  GROUP BY DateModified
-  ORDER BY DateModified desc
+  GROUP BY DateCreate
+  ORDER BY DateCreate desc
   
   SELECT eggs.DateAdded, sum(eggs.Amount) as DailyEggs
   FROM (

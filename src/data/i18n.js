@@ -47,13 +47,6 @@ i18n
             AmountTotal: 'Total Eggs',
             AmountToday: 'Today Eggs',
             Trolleys: 'Trolleys',
-            sensors: {
-              title: 'Sensors History',
-              Temp: 'Temperature',
-              Humidity: 'Humidity',
-              Baro: 'Pressure',
-              CO2: 'CO2',
-            },
             eggs: {
               chart: 'Daily Eggs',
               title: 'Daily Eggs History',
@@ -114,7 +107,9 @@ i18n
           },
           productView: {
             productHistory: 'Product History',
-            sensors: {
+          },
+          appComponents: {
+            sensorsChart: {
               Temp: 'Temperature',
               Humidity: 'Humidity',
               Baro: 'Pressure',

@@ -48,19 +48,19 @@ const get_product_history = async ({ db, uid }) => {
 
   SELECT * FROM #ProductHistory
   
-  SELECT DateModified, 
-         round(sum(CASE WHEN SubType = 0 
+  SELECT DateCreate, 
+         round(avg(CASE WHEN SubType = 0 
                         THEN convert(float, Value) END) * 10, 1) as Temp,
-         round(sum(CASE WHEN SubType = 2 
+         round(avg(CASE WHEN SubType = 2 
                         THEN convert(float, Value) END), 1) as Humidity,
-         round(sum(CASE WHEN SubType = 3 
+         round(avg(CASE WHEN SubType = 3 
                         THEN convert(float, Value) END) * 100000, 0) as Baro,
-         sum(CASE WHEN SubType = 8 THEN convert(float, Value) END) as CO2
+         avg(CASE WHEN SubType = 8 THEN convert(float, Value) END) as CO2
   FROM Sensors 
   WHERE SensorType = 10 and isnumeric(Value) = 1 and
         DeviceUID in (SELECT TrolleyUID FROM #ProductHistory)
-  GROUP BY DateModified
-  ORDER BY DateModified desc
+  GROUP BY DateCreate
+  ORDER BY DateCreate desc
 
   DROP TABLE #ProductHistory
 `
