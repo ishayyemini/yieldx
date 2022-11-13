@@ -2,10 +2,8 @@ import { memo, useContext, useEffect, useMemo, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import ReactFlow, {
   Background,
-  Controls,
   Handle,
   MarkerType,
-  MiniMap,
   useEdgesState,
   useNodesState,
 } from 'reactflow'
@@ -14,6 +12,7 @@ import { Box, Card, Text } from 'grommet'
 
 import GlobalContext from './app/GlobalContext'
 import API from '../data/API'
+import { useTranslation } from 'react-i18next'
 
 const initialNodes = []
 const initialEdges = []
@@ -90,6 +89,8 @@ const ProductView = () => {
   const UID = pathname.slice(pathname.indexOf('/product/') + 9)
   const product = products[UID]
 
+  const { t } = useTranslation(null, { keyPrefix: 'productView' })
+
   useEffect(() => {
     API.getProductHistory(UID).then()
   }, [UID])
@@ -148,21 +149,34 @@ const ProductView = () => {
   }, [highest, setNodes, setEdges, product.History, warehouses])
 
   return (
-    <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      nodeTypes={nodeTypes}
-      nodesDraggable={false}
-      nodesConnectable={false}
-      nodesFocusable={false}
-      edgesFocusable={false}
-      fitView
-      ref={flowRef}
-    >
-      <MiniMap />
-      <Controls />
-      <Background />
-    </ReactFlow>
+    <Box flex={'grow'} pad={'small'} gap={'small'}>
+      <Card height={'50%'} pad={'none'} margin={'none'} overflow={'hidden'}>
+        <Box
+          style={{ position: 'absolute', zIndex: 10 }}
+          pad={'small'}
+          background={'inherit'}
+          round={{ corner: 'top-left', size: 'small' }}
+        >
+          <Text weight={'bold'}>{t('productHistory')}</Text>
+        </Box>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          nodeTypes={nodeTypes}
+          nodesDraggable={false}
+          nodesConnectable={false}
+          nodesFocusable={false}
+          edgesFocusable={false}
+          fitView
+          ref={flowRef}
+        >
+          <Background />
+        </ReactFlow>
+      </Card>
+      <Card height={'50%'} margin={'none'}>
+        <Text weight={'bold'}>{t('sensorHistory')}</Text>
+      </Card>
+    </Box>
   )
 }
 

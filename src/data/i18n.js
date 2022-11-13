@@ -112,6 +112,10 @@ i18n
             backToWH: 'Back to WH',
             actions: 'Actions',
           },
+          productView: {
+            productHistory: 'Product History',
+            sensorHistory: 'Sensor History',
+          },
         },
       },
     },
