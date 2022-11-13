@@ -112,7 +112,8 @@ const SensorsChart = ({ data }) => {
   const sensors = useMemo(
     () =>
       ['Temp', 'Humidity', 'Baro', 'CO2'].map((type) => ({
-        name: type,
+        id: type,
+        name: t(type),
         type: 'line',
         data:
           data
@@ -127,13 +128,24 @@ const SensorsChart = ({ data }) => {
     <Chart
       options={{
         chart: {
-          id: item.name,
+          id: item.id,
           type: 'line',
           fontFamily: '"Lato", sans-serif',
+          zoom: { autoScaleYaxis: true },
         },
         stroke: { curve: 'smooth', width: 3 },
         legend: { show: false },
-        title: { text: t(item.name) },
+        title: { text: item.name },
+        yaxis: {
+          labels: {
+            formatter: (value) =>
+              value +
+              (item.name === 'Humidity' ? '%' : '') +
+              (item.name === 'Temp' ? '°C' : ''),
+          },
+          tickAmount: 3,
+          forceNiceScale: true,
+        },
         xaxis: { type: 'datetime', labels: { format: 'dd MMM' } },
         dataLabels: { enabled: false },
         tooltip: { x: { format: 'dd MMM HH:mm:ss' } },
