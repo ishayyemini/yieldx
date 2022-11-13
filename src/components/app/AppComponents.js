@@ -140,8 +140,8 @@ const SensorsChart = ({ data }) => {
           labels: {
             formatter: (value) =>
               value +
-              (item.name === 'Humidity' ? '%' : '') +
-              (item.name === 'Temp' ? '°C' : ''),
+              (item.id === 'Humidity' ? '%' : '') +
+              (item.id === 'Temp' ? '°C' : ''),
           },
           tickAmount: 3,
           forceNiceScale: true,
