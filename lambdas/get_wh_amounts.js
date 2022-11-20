@@ -22,7 +22,7 @@ const get_wh_amounts = async ({ db, lastFetched }) => {
     .query(
       `
   SELECT Warehouses.UID as UID, Name, TypeDescription as Type,
-         count(Amount) as Trolleys,
+         count(nullif(Amount, 0)) as Trolleys,
          isnull(string_agg(convert(NVARCHAR(max), WHProdAmount.ProdID), ','),
                 '') as Products,
          isnull((SELECT sum(Amount) FROM WHProdAmount WHERE Amount > 0 and 
