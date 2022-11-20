@@ -139,14 +139,19 @@ const SensorsChart = ({ data }) => {
         yaxis: {
           labels: {
             formatter: (value) =>
-              value +
+              Math.round(value) +
               (item.id === 'Humidity' ? '%' : '') +
               (item.id === 'Temp' ? '°C' : ''),
           },
           tickAmount: 3,
-          forceNiceScale: true,
+          min: (min) => Math.floor(min),
+          max: (max) => Math.ceil(max),
         },
-        xaxis: { type: 'datetime', labels: { format: 'dd MMM' } },
+        xaxis: {
+          type: 'datetime',
+          labels: { format: 'dd MMM' },
+          tooltip: { enabled: false },
+        },
         dataLabels: { enabled: false },
         tooltip: { x: { format: 'dd MMM HH:mm:ss' } },
         colors: [['#008FFB', '#00E396', '#FEB019'][index]],
