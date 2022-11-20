@@ -53,11 +53,7 @@ const WarehouseView = () => {
     <Box flex={'grow'} pad={'small'} basis={'60%'} align={'center'}>
       {data ? (
         <>
-          <Card
-            fill={'horizontal'}
-            margin={{ bottom: 'small' }}
-            flex={{ grow: 1 }}
-          >
+          <Card fill={'horizontal'} margin={{ bottom: 'small' }} height={'25%'}>
             {loading ? (
               <LoadingIndicator overlay={false} loading />
             ) : (
@@ -80,7 +76,7 @@ const WarehouseView = () => {
             )}
           </Card>
 
-          <Card margin={'none'} fill={'horizontal'} flex={{ grow: 5 }}>
+          <Card margin={'none'} fill={'horizontal'} height={'75%'}>
             {loading ? (
               <LoadingIndicator overlay={false} loading />
             ) : (

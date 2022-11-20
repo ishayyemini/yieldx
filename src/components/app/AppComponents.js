@@ -124,7 +124,7 @@ const SensorsChart = ({ data }) => {
     [t, data]
   )
 
-  return sensors.slice(0, 3).map((item, index) => (
+  return sensors.map((item, index) => (
     <Chart
       options={{
         chart: {
@@ -143,7 +143,7 @@ const SensorsChart = ({ data }) => {
               (item.id === 'Humidity' ? '%' : '') +
               (item.id === 'Temp' ? '°C' : ''),
           },
-          tickAmount: 3,
+          tickAmount: 2,
           min: (min) => Math.floor(min),
           max: (max) => Math.ceil(max),
         },
@@ -158,7 +158,7 @@ const SensorsChart = ({ data }) => {
       }}
       series={[item]}
       width={'100%'}
-      height={'33%'}
+      height={'25%'}
       key={index}
     />
   ))
