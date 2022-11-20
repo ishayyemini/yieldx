@@ -8,12 +8,13 @@ import ReactFlow, {
   useNodesState,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
-import { Box, Card, Text } from 'grommet'
+import { Box, Button, Card, Layer, Text } from 'grommet'
 import { useTranslation } from 'react-i18next'
 
 import GlobalContext from './app/GlobalContext'
 import API from '../data/API'
 import { LoadingIndicator, SensorsChart } from './app/AppComponents'
+import * as Icons from 'grommet-icons'
 
 const initialNodes = []
 const initialEdges = []
@@ -84,6 +85,8 @@ const nodeTypes = { product: ProductNode, farm: FarmNode }
 const ProductView = () => {
   const flowRef = useRef()
   const { warehouses, products } = useContext(GlobalContext)
+
+  const [selectedChart, setSelectedChart] = useState(null)
 
   const { pathname } = useLocation()
 
@@ -189,9 +192,36 @@ const ProductView = () => {
         {loading ? (
           <LoadingIndicator overlay={false} loading />
         ) : (
-          <SensorsChart data={product.SensorHistory} />
+          <SensorsChart
+            data={product.SensorHistory}
+            onClick={setSelectedChart}
+          />
         )}
       </Card>
+
+      {selectedChart ? (
+        <Layer
+          background={'transparent'}
+          style={{ width: '80%', height: '300px' }}
+          onClickOutside={() => setSelectedChart(null)}
+        >
+          <Card margin={'none'} fill>
+            <SensorsChart
+              data={product.SensorHistory}
+              onClick={setSelectedChart}
+              sensors={[selectedChart]}
+            />
+            <Button
+              icon={<Icons.Close />}
+              onClick={() => setSelectedChart(null)}
+              margin={{ top: 'small' }}
+              alignSelf={'center'}
+              style={{ position: 'absolute', right: 0, top: 0 }}
+              hoverIndicator
+            />
+          </Card>
+        </Layer>
+      ) : null}
     </Box>
   )
 }

@@ -1,15 +1,18 @@
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Box, Card } from 'grommet'
+import { Box, Button, Card, Layer } from 'grommet'
 import { useTranslation } from 'react-i18next'
 import Chart from 'react-apexcharts'
+import * as Icons from 'grommet-icons'
 
 import GlobalContext from './app/GlobalContext'
 import API from '../data/API'
 import { LoadingIndicator, SensorsChart } from './app/AppComponents'
 
 const WarehouseView = () => {
-  const { warehouses, products } = useContext(GlobalContext)
+  const { warehouses } = useContext(GlobalContext)
+
+  const [selectedChart, setSelectedChart] = useState(null)
 
   const { t } = useTranslation(null, { keyPrefix: 'warehouseView' })
 
@@ -47,8 +50,6 @@ const WarehouseView = () => {
     [t, data.EggHistory]
   )
 
-  console.log(products)
-
   return (
     <Box flex={'grow'} pad={'small'} basis={'60%'} align={'center'}>
       {data ? (
@@ -80,13 +81,41 @@ const WarehouseView = () => {
             {loading ? (
               <LoadingIndicator overlay={false} loading />
             ) : (
-              <SensorsChart data={data.SensorHistory} />
+              <SensorsChart
+                data={data.SensorHistory}
+                onClick={setSelectedChart}
+              />
             )}
           </Card>
         </>
       ) : (
         <Card>{t('empty')}</Card>
       )}
+
+      {selectedChart ? (
+        <Layer
+          background={'transparent'}
+          style={{ width: '80%', height: '300px' }}
+          onClickOutside={() => setSelectedChart(null)}
+        >
+          <Card margin={'none'} fill>
+            <SensorsChart
+              data={data.SensorHistory}
+              onClick={setSelectedChart}
+              sensors={[selectedChart]}
+            />
+            <Button
+              icon={<Icons.Close />}
+              // label={t('close')}
+              onClick={() => setSelectedChart(null)}
+              margin={{ top: 'small' }}
+              alignSelf={'center'}
+              style={{ position: 'absolute', right: 0, top: 0 }}
+              hoverIndicator
+            />
+          </Card>
+        </Layer>
+      ) : null}
     </Box>
   )
 }

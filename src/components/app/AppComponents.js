@@ -104,14 +104,18 @@ const LoadingIndicator = ({ loading, overlay = true }) => {
   ) : null
 }
 
-const SensorsChart = ({ data }) => {
+const SensorsChart = ({
+  data,
+  onClick = () => {},
+  sensors: sensorList = ['Temp', 'Humidity', 'Baro', 'CO2'],
+}) => {
   const { t } = useTranslation(null, {
     keyPrefix: 'appComponents.sensorsChart',
   })
 
   const sensors = useMemo(
     () =>
-      ['Temp', 'Humidity', 'Baro', 'CO2'].map((type) => ({
+      sensorList.map((type) => ({
         id: type,
         name: t(type),
         type: 'line',
@@ -121,46 +125,57 @@ const SensorsChart = ({ data }) => {
             .map((item) => [new Date(item.DateCreate).getTime(), item[type]]) ??
           [],
       })),
-    [t, data]
+    [t, data, sensorList]
   )
 
-  return sensors.map((item, index) => (
-    <Chart
-      options={{
-        chart: {
-          id: item.id,
-          type: 'line',
-          fontFamily: '"Lato", sans-serif',
-          zoom: { autoScaleYaxis: true },
-        },
-        stroke: { curve: 'smooth', width: 1 },
-        legend: { show: false },
-        title: { text: item.name },
-        yaxis: {
-          labels: {
-            formatter: (value) =>
-              Math.round(value) +
-              (item.id === 'Humidity' ? '%' : '') +
-              (item.id === 'Temp' ? '°C' : ''),
+  const colors = { Temp: '#008FFB', Humidity: '#00E396', Baro: '#FEB019' }
+
+  return sensors.map((item, index, array) => (
+    <Box
+      height={`${100 / array.length}%`}
+      onClick={() => onClick(item.id)}
+      key={item.id}
+    >
+      <Chart
+        options={{
+          chart: {
+            id: item.id,
+            type: 'line',
+            fontFamily: '"Lato", sans-serif',
+            zoom: { enabled: array.length <= 1 },
+            toolbar:
+              array.length <= 1
+                ? { offsetX: -50, offsetY: 5 }
+                : { show: false },
           },
-          tickAmount: 2,
-          min: (min) => Math.floor(min),
-          max: (max) => Math.ceil(max),
-        },
-        xaxis: {
-          type: 'datetime',
-          labels: { format: 'dd MMM' },
-          tooltip: { enabled: false },
-        },
-        dataLabels: { enabled: false },
-        tooltip: { x: { format: 'dd MMM HH:mm:ss' } },
-        colors: [['#008FFB', '#00E396', '#FEB019'][index]],
-      }}
-      series={[item]}
-      width={'100%'}
-      height={'25%'}
-      key={index}
-    />
+          stroke: { curve: 'smooth', width: 1 },
+          legend: { show: false },
+          title: { text: item.name },
+          yaxis: {
+            labels: {
+              formatter: (value) =>
+                Math.round(value) +
+                (item.id === 'Humidity' ? '%' : '') +
+                (item.id === 'Temp' ? '°C' : ''),
+            },
+            tickAmount: array.length > 1 ? 2 : 6,
+            min: (min) => Math.floor(min),
+            max: (max) => Math.ceil(max),
+          },
+          xaxis: {
+            type: 'datetime',
+            labels: { format: 'dd MMM' },
+            tooltip: { enabled: false },
+          },
+          dataLabels: { enabled: false },
+          tooltip: { x: { format: 'dd MMM HH:mm:ss' } },
+          colors: [colors[item.id]],
+        }}
+        series={[item]}
+        width={'100%'}
+        height={'100%'}
+      />
+    </Box>
   ))
 }
 
