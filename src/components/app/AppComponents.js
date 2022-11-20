@@ -121,7 +121,7 @@ const SensorsChart = ({ data }) => {
             .map((item) => [new Date(item.DateCreate).getTime(), item[type]]) ??
           [],
       })),
-    [data]
+    [t, data]
   )
 
   return sensors.slice(0, 3).map((item, index) => (
@@ -133,7 +133,7 @@ const SensorsChart = ({ data }) => {
           fontFamily: '"Lato", sans-serif',
           zoom: { autoScaleYaxis: true },
         },
-        stroke: { curve: 'smooth', width: 3 },
+        stroke: { curve: 'smooth', width: 1 },
         legend: { show: false },
         title: { text: item.name },
         yaxis: {
