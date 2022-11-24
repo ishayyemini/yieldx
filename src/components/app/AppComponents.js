@@ -145,7 +145,10 @@ const SensorsChart = ({
             type: 'line',
             data:
               data
-                ?.filter((_, index) => index % 30 === 0)
+                ?.filter(
+                  (_, index, array) =>
+                    index % Math.round(array.length / 300) === 0
+                )
                 .map((item) => [
                   new Date(item.DateCreate).getTime(),
                   item[type],
@@ -194,6 +197,7 @@ const SensorsChart = ({
               array.length <= 1
                 ? { offsetX: -50, offsetY: 5 }
                 : { show: false },
+            animations: { enabled: false },
           },
           stroke: { curve: 'smooth', width: 1 },
           legend: { show: false },
@@ -216,20 +220,22 @@ const SensorsChart = ({
           },
           dataLabels: { enabled: false },
           tooltip: {
-            x: {
-              format: 'dd MMM HH:mm:ss',
-              // formatter: (val) => {
-              //   // console.log(
-              //   //   new Date(prodHistory.slice(-1)[0].CreateDate).getTime()
-              //   // )
-              //   // console.log(val)
-              //   // console.log(
-              //   //   prodHistory
-              //   //     .slice(-1)
-              //   //     .find((trans) => new Date(trans.CreateDate).getTime() < val)
-              //   // )
-              //   return val
-              // },
+            custom: ({ seriesIndex, dataPointIndex, w }) => {
+              const [x, y] = w.config.series[seriesIndex].data[dataPointIndex]
+              const currentWH =
+                warehouses[
+                  prodHistory
+                    ?.reverse()
+                    .find((trans) => new Date(trans.CreateDate).getTime() < x)
+                    ?.DestinationWH
+                ] ?? {}
+
+              return `<span>x - ${new Date(x).toLocaleString('en-GB', {
+                dateStyle: 'short',
+                timeStyle: 'medium',
+              })}</span>
+                      <span>y - ${y}</span>
+                      <span>wh - ${currentWH.Name}</span>`
             },
           },
           colors: item.map((series) => series.color),
