@@ -108,6 +108,7 @@ const SensorsChart = ({
   data,
   onClick = () => {},
   sensors: sensorList = ['Temp', 'Humidity', 'Baro', 'CO2'],
+  prodHistory,
 }) => {
   const { t } = useTranslation(null, {
     keyPrefix: 'appComponents.sensorsChart',
@@ -115,31 +116,56 @@ const SensorsChart = ({
 
   const sensors = useMemo(
     () =>
-      sensorList.map((type) => ({
-        id: type,
-        name: t(type),
-        type: 'line',
-        data:
-          data
-            ?.slice(0, 300)
-            .map((item) => [new Date(item.DateCreate).getTime(), item[type]]) ??
-          [],
-      })),
-    [t, data, sensorList]
+      sensorList.map((type) => {
+        let series = [
+          {
+            id: type,
+            name: t(type),
+            type: 'line',
+            data:
+              data
+                ?.filter((_, index) => index % 30 === 0)
+                .map((item) => [
+                  new Date(item.DateCreate).getTime(),
+                  item[type],
+                ]) ?? [],
+          },
+        ]
+        const maxValue = Math.max(...series[0].data.map(([, val]) => val))
+
+        if (prodHistory)
+          series = series.concat(
+            prodHistory.map((trans, index, array) => ({
+              id: `trans-${index}`,
+              data: [
+                [new Date(trans.CreateDate).getTime(), maxValue],
+                [
+                  new Date(
+                    array[index + 1]?.CreateDate ?? series[0].data[0][0]
+                  ).getTime(),
+                  maxValue,
+                ],
+              ],
+              type: 'area',
+            }))
+          )
+        return series
+      }),
+    [t, data, sensorList, prodHistory]
   )
 
-  const colors = { Temp: '#008FFB', Humidity: '#00E396', Baro: '#FEB019' }
+  // const colors = { Temp: '#008FFB', Humidity: '#00E396', Baro: '#FEB019' }
 
   return sensors.map((item, index, array) => (
     <Box
       height={`${100 / array.length}%`}
-      onClick={() => onClick(item.id)}
-      key={item.id}
+      onClick={() => onClick(item[0].id)}
+      key={item[0].id}
     >
       <Chart
         options={{
           chart: {
-            id: item.id,
+            id: item[0].id,
             type: 'line',
             fontFamily: '"Lato", sans-serif',
             zoom: { enabled: array.length <= 1 },
@@ -150,13 +176,13 @@ const SensorsChart = ({
           },
           stroke: { curve: 'smooth', width: 1 },
           legend: { show: false },
-          title: { text: item.name },
+          title: { text: item[0].name },
           yaxis: {
             labels: {
               formatter: (value) =>
                 Math.round(value) +
-                (item.id === 'Humidity' ? '%' : '') +
-                (item.id === 'Temp' ? '°C' : ''),
+                (item[0].id === 'Humidity' ? '%' : '') +
+                (item[0].id === 'Temp' ? '°C' : ''),
             },
             tickAmount: array.length > 1 ? 2 : 6,
             min: (min) => Math.floor(min),
@@ -168,10 +194,26 @@ const SensorsChart = ({
             tooltip: { enabled: false },
           },
           dataLabels: { enabled: false },
-          tooltip: { x: { format: 'dd MMM HH:mm:ss' } },
-          colors: [colors[item.id]],
+          tooltip: {
+            x: {
+              format: 'dd MMM HH:mm:ss',
+              // formatter: (val) => {
+              //   // console.log(
+              //   //   new Date(prodHistory.slice(-1)[0].CreateDate).getTime()
+              //   // )
+              //   // console.log(val)
+              //   // console.log(
+              //   //   prodHistory
+              //   //     .slice(-1)
+              //   //     .find((trans) => new Date(trans.CreateDate).getTime() < val)
+              //   // )
+              //   return val
+              // },
+            },
+          },
+          // colors: [colors[item[0].id]],
         }}
-        series={[item]}
+        series={item}
         width={'100%'}
         height={'100%'}
       />

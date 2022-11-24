@@ -195,6 +195,7 @@ const ProductView = () => {
           <SensorsChart
             data={product.SensorHistory}
             onClick={setSelectedChart}
+            prodHistory={product.TransHistory}
           />
         )}
       </Card>
@@ -208,6 +209,7 @@ const ProductView = () => {
           <Card margin={'none'} fill>
             <SensorsChart
               data={product.SensorHistory}
+              prodHistory={product.TransHistory}
               onClick={setSelectedChart}
               sensors={[selectedChart]}
             />
