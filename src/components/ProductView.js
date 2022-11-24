@@ -13,26 +13,16 @@ import { useTranslation } from 'react-i18next'
 
 import GlobalContext from './app/GlobalContext'
 import API from '../data/API'
-import { LoadingIndicator, SensorsChart } from './app/AppComponents'
+import {
+  farmColors,
+  LoadingIndicator,
+  SensorsChart,
+  whColors,
+} from './app/AppComponents'
 import * as Icons from 'grommet-icons'
 
 const initialNodes = []
 const initialEdges = []
-
-const whColors = {
-  House: '#a2f9d8',
-  Truck: '#6bcaef',
-  EggStorage: '#fcb0d1',
-  Setter: '#84f98c',
-  HatchRoom: '#c283ef',
-  ChickHall: '#f2e782',
-}
-
-const farmColors = {
-  PSFarm: '#91300d',
-  Hatchery: '#9b0f4c',
-  BRFarm: '#11b26a',
-}
 
 const ProductNode = memo(({ data }) => {
   const { warehouses } = useContext(GlobalContext)

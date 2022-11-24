@@ -11,11 +11,30 @@ import {
 } from 'chart.js'
 import { Bar } from 'react-chartjs-2'
 import { MutatingDots } from 'react-loader-spinner'
-import { useEffect, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import Chart from 'react-apexcharts'
 import { useTranslation } from 'react-i18next'
 
+import GlobalContext from './GlobalContext'
+
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
+
+export const whColors = {
+  House: '#a2f9d8',
+  Truck: '#6bcaef',
+  EggStorage: '#fcb0d1',
+  Setter: '#84f98c',
+  HatchRoom: '#c283ef',
+  ChickHall: '#f2e782',
+}
+
+export const farmColors = {
+  PSFarm: '#91300d',
+  Hatchery: '#9b0f4c',
+  BRFarm: '#11b26a',
+}
+
+const sensorColors = { Temp: '#008FFB', Humidity: '#00E396', Baro: '#FEB019' }
 
 const CardWrapper = ({ direction = 'row', ...props }) => {
   return <Box direction={direction} fill {...props} />
@@ -110,6 +129,8 @@ const SensorsChart = ({
   sensors: sensorList = ['Temp', 'Humidity', 'Baro', 'CO2'],
   prodHistory,
 }) => {
+  const { warehouses } = useContext(GlobalContext)
+
   const { t } = useTranslation(null, {
     keyPrefix: 'appComponents.sensorsChart',
   })
@@ -129,6 +150,7 @@ const SensorsChart = ({
                   new Date(item.DateCreate).getTime(),
                   item[type],
                 ]) ?? [],
+            color: sensorColors[type],
           },
         ]
         const maxValue = Math.max(...series[0].data.map(([, val]) => val))
@@ -147,14 +169,13 @@ const SensorsChart = ({
                 ],
               ],
               type: 'area',
+              color: whColors[warehouses[trans.DestinationWH]?.Type],
             }))
           )
         return series
       }),
-    [t, data, sensorList, prodHistory]
+    [t, data, sensorList, prodHistory, warehouses]
   )
-
-  // const colors = { Temp: '#008FFB', Humidity: '#00E396', Baro: '#FEB019' }
 
   return sensors.map((item, index, array) => (
     <Box
@@ -211,7 +232,7 @@ const SensorsChart = ({
               // },
             },
           },
-          // colors: [colors[item[0].id]],
+          colors: item.map((series) => series.color),
         }}
         series={item}
         width={'100%'}
