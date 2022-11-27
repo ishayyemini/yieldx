@@ -147,7 +147,8 @@ const SensorsChart = ({
               data
                 ?.filter(
                   (_, index, array) =>
-                    index % Math.round(array.length / 300) === 0
+                    sensorList.length <= 1 ||
+                    index % Math.ceil(array.length / 500) === 0
                 )
                 .map((item) => [
                   new Date(item.DateCreate).getTime(),
@@ -199,7 +200,7 @@ const SensorsChart = ({
                 : { show: false },
             animations: { enabled: false },
           },
-          stroke: { curve: 'smooth', width: 1 },
+          stroke: { curve: 'straight', width: 1 },
           legend: { show: false },
           title: { text: item[0].name },
           yaxis: {

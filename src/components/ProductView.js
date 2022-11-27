@@ -188,32 +188,32 @@ const ProductView = () => {
             prodHistory={product.TransHistory}
           />
         )}
-      </Card>
 
-      {selectedChart ? (
-        <Layer
-          background={'transparent'}
-          style={{ width: '80%', height: '300px' }}
-          onClickOutside={() => setSelectedChart(null)}
-        >
-          <Card margin={'none'} fill>
-            <SensorsChart
-              data={product.SensorHistory}
-              prodHistory={product.TransHistory}
-              onClick={setSelectedChart}
-              sensors={[selectedChart]}
-            />
-            <Button
-              icon={<Icons.Close />}
-              onClick={() => setSelectedChart(null)}
-              margin={{ top: 'small' }}
-              alignSelf={'center'}
-              style={{ position: 'absolute', right: 0, top: 0 }}
-              hoverIndicator
-            />
-          </Card>
-        </Layer>
-      ) : null}
+        {selectedChart ? (
+          <Layer
+            background={'transparent'}
+            style={{ width: '80%', height: '300px' }}
+            onClickOutside={() => setSelectedChart(null)}
+          >
+            <Card margin={'none'} fill>
+              <SensorsChart
+                data={product.SensorHistory}
+                prodHistory={product.TransHistory}
+                onClick={setSelectedChart}
+                sensors={[selectedChart]}
+              />
+              <Button
+                icon={<Icons.Close />}
+                onClick={() => setSelectedChart(null)}
+                margin={{ top: 'small' }}
+                alignSelf={'center'}
+                style={{ position: 'absolute', right: 0, top: 0 }}
+                hoverIndicator
+              />
+            </Card>
+          </Layer>
+        ) : null}
+      </Card>
     </Box>
   )
 }
