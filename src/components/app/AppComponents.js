@@ -20,21 +20,26 @@ import GlobalContext from './GlobalContext'
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 export const whColors = {
-  House: '#a2f9d8',
-  Truck: '#6bcaef',
-  EggStorage: '#fcb0d1',
-  Setter: '#84f98c',
-  HatchRoom: '#c283ef',
-  ChickHall: '#f2e782',
+  House: '#A2F9D8',
+  Truck: '#6BCAEF',
+  EggStorage: '#FCB0D1',
+  Setter: '#84F98C',
+  HatchRoom: '#C283EF',
+  ChickHall: '#F2E782',
 }
 
 export const farmColors = {
-  PSFarm: '#91300d',
-  Hatchery: '#9b0f4c',
-  BRFarm: '#11b26a',
+  PSFarm: '#91300D',
+  Hatchery: '#9B0F4C',
+  BRFarm: '#11B26A',
 }
 
-const sensorColors = { Temp: '#008FFB', Humidity: '#00E396', Baro: '#FEB019' }
+const sensorColors = {
+  Temp: '#008FFB',
+  Humidity: '#00E396',
+  Baro: '#FEB019',
+  CO2: '#E91E63',
+}
 
 const CardWrapper = ({ direction = 'row', ...props }) => {
   return <Box direction={direction} fill {...props} />
@@ -152,7 +157,7 @@ const SensorsChart = ({
                 )
                 .map((item) => [
                   new Date(item.DateCreate).getTime(),
-                  item[type],
+                  item[type === 'CO2' ? 'Temp' : type], // TODO Replace when we get CO2
                 ]) ?? [],
             color: sensorColors[type],
           },
@@ -183,10 +188,15 @@ const SensorsChart = ({
 
   return sensors.map((item, index, array) => (
     <Box
-      height={`${100 / array.length}%`}
+      height={`calc(${100 / array.length}% + ${
+        index === array.length - 1 ? 15 : -15 / (array.length - 1)
+      }px)`}
       onClick={() => onClick(item[0].id)}
       key={item[0].id}
     >
+      <Text weight={'bold'} size={'small'} style={{ position: 'absolute' }}>
+        {item[0].name}
+      </Text>
       <Chart
         options={{
           chart: {
@@ -202,7 +212,7 @@ const SensorsChart = ({
           },
           stroke: { curve: 'straight', width: 1 },
           legend: { show: false },
-          title: { text: item[0].name },
+          grid: { borderColor: 'black' },
           yaxis: {
             labels: {
               formatter: (value) =>
@@ -216,7 +226,7 @@ const SensorsChart = ({
           },
           xaxis: {
             type: 'datetime',
-            labels: { format: 'dd MMM' },
+            labels: { show: index === array.length - 1, format: 'dd MMM' },
             tooltip: { enabled: false },
           },
           dataLabels: { enabled: false },
