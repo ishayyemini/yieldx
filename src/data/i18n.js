@@ -6,7 +6,6 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    debug: true, // TODO remove for production
     fallbackLng: 'en',
     interpolation: { escapeValue: false },
     resources: {

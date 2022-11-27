@@ -17,11 +17,6 @@ import FarmList from './components/FarmList'
 import ProductList from './components/ProductList'
 
 const GlobalStyle = createGlobalStyle`
-  @font-face {
-    font-family: 'Lato';
-    src: local('Lato'), url(./fonts/Lato-Regular.ttf) format('truetype');
-  }
-
   body {
     font-family: "Lato", sans-serif;
     --main: #f9dec8ff;

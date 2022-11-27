@@ -24,8 +24,8 @@ const NavButtonStyled = styled(Button).attrs({
 `
 
 const DynamicNav = styled(Box).attrs({
-  direction: 'none',
-  flex: 'none',
+  direction: 'row',
+  flex: false,
 })`
   height: 100%;
   width: ${(menuWidth + 30) * 3}px;

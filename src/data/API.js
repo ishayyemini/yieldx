@@ -124,7 +124,6 @@ class APIClass {
     )
       .then((res) => res.json())
       .then((res) => {
-        console.log(res)
         if (update)
           this._updateContext((oldData) => ({
             ...oldData,
