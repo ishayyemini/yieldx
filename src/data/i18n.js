@@ -113,6 +113,7 @@ i18n
               Humidity: 'Humidity',
               Baro: 'Pressure',
               CO2: 'CO2',
+              warehouse: 'Warehouse',
             },
           },
         },

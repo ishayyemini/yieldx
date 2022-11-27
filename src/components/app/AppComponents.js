@@ -235,18 +235,28 @@ const SensorsChart = ({
               const [x, y] = w.config.series[seriesIndex].data[dataPointIndex]
               const currentWH =
                 warehouses[
-                  prodHistory
-                    ?.reverse()
+                  [...(prodHistory || [])]
+                    .reverse()
                     .find((trans) => new Date(trans.CreateDate).getTime() < x)
                     ?.DestinationWH
-                ] ?? {}
-
-              return `<span>x - ${new Date(x).toLocaleString('en-GB', {
+                ]
+              const time = new Date(x).toLocaleString('en-GB', {
                 dateStyle: 'short',
-                timeStyle: 'medium',
-              })}</span>
-                      <span>y - ${y}</span>
-                      <span>wh - ${currentWH.Name}</span>`
+                timeStyle: 'short',
+              })
+
+              return `<div style='padding: 5px'>
+                <div style='font-weight: bold; text-align: center'>${time}</div>
+                      <div>${item[0].name}: ${y}${
+                item[0].id === 'Humidity' ? '%' : ''
+              }${item[0].id === 'Temp' ? '°C' : ''}
+              </div>
+                      ${
+                        currentWH
+                          ? `<div>${t('warehouse')}: ${currentWH.Name}</div>`
+                          : ''
+                      }
+              </div>`
             },
           },
           colors: item.map((series) => series.color),
