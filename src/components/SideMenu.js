@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { Box, Button, ResponsiveContext, Sidebar, Text } from 'grommet'
 import * as Icons from 'grommet-icons'
 import styled from 'styled-components'
@@ -6,8 +6,6 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import GlobalContext from './app/GlobalContext'
-
-const menuWidth = 210
 
 const NavButtonStyled = styled(Button).attrs({
   plain: true,
@@ -28,13 +26,13 @@ const DynamicNav = styled(Box).attrs({
   flex: false,
 })`
   height: 100%;
-  width: ${(menuWidth + 30) * 3}px;
-  left: -${(props) => props.page * (menuWidth + 30)}px;
+  width: ${(props) => (props.menuWidth + 30) * 3}px;
+  left: -${(props) => props.page * (props.menuWidth + 30)}px;
   position: relative;
   transition: left 0.3s;
 
   > div {
-    width: ${menuWidth}px;
+    width: ${(props) => props.menuWidth}px;
     margin-right: 30px;
     flex: none;
   }
@@ -72,10 +70,21 @@ Farm -> Warehouse list
  */
 
 const SideMenu = ({ signOut }) => {
-  const size = useContext(ResponsiveContext)
+  const small = 'small' === useContext(ResponsiveContext)
   const { warehouses, products } = useContext(GlobalContext)
 
+  const [open, toggleOpen] = useState(false)
+
   const { pathname } = useLocation()
+
+  const menuWidth = useMemo(
+    () => (small ? window.innerWidth - 24 : 210),
+    [small]
+  )
+
+  useEffect(() => {
+    toggleOpen(false)
+  }, [small])
 
   const { t } = useTranslation(null, { keyPrefix: 'sideMenu' })
 
@@ -102,21 +111,32 @@ const SideMenu = ({ signOut }) => {
     <Box
       pad={'small'}
       flex={false}
+      height={{ max: small && !open ? '70px' : '100%' }}
       style={{ position: 'sticky', top: 0, zIndex: 10 }}
+      overflow={'hidden'}
     >
       <Sidebar
         round={'small'}
         background={'var(--main)'}
         gap={'medium'}
-        direction={size === 'small' ? 'row' : 'column'}
-        // flex={false}
-        footer={size !== 'small' ? footerElements : null}
+        footer={small ? footerElements : null}
+        height={{ min: 'fit-content' }}
+        flex={false}
       >
-        <Box
-          width={{ max: menuWidth + 'px', min: menuWidth + 'px' }}
-          overflow={'hidden'}
-          fill
-        >
+        <Box width={{ max: menuWidth + 'px', min: menuWidth + 'px' }}>
+          {small ? (
+            <Button
+              icon={open ? <Icons.Close /> : <Icons.Menu />}
+              onClick={() => toggleOpen((open) => !open)}
+              style={{
+                position: 'absolute',
+                right: '6px',
+                zIndex: 1,
+                height: '50px',
+              }}
+            />
+          ) : null}
+
           <DynamicNav
             page={
               0 +
@@ -124,6 +144,7 @@ const SideMenu = ({ signOut }) => {
               (currentWarehouse ? 1 : 0) +
               (currentProduct ? 1 : 0)
             }
+            menuWidth={menuWidth}
           >
             <Box>
               <NavHeader>{t('farms')}</NavHeader>

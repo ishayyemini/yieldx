@@ -80,7 +80,7 @@ const GrommetWrapper = (Element) => () => {
 }
 
 const App = () => {
-  const size = useContext(ResponsiveContext)
+  const small = 'small' === useContext(ResponsiveContext)
 
   const [globalState, setGlobalState] = useState({
     user: '',
@@ -130,7 +130,7 @@ const App = () => {
   }, [])
 
   return (
-    <Box direction={size === 'small' ? 'column' : 'row'} fill>
+    <Box direction={small ? 'column' : 'row'} fill>
       <GlobalContext.Provider value={{ ...globalState, setGlobalState }}>
         <BrowserRouter>
           <GlobalStyle />
