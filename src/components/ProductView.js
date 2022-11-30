@@ -150,8 +150,14 @@ const ProductView = () => {
   }, [highest, setNodes, setEdges, product.TransHistory, warehouses])
 
   return (
-    <Box flex={'grow'} pad={'small'} gap={'small'}>
-      <Card height={'30%'} pad={'none'} margin={'none'} overflow={'hidden'}>
+    <Box pad={'small'} gap={'small'} flex={'grow'}>
+      <Card
+        margin={'none'}
+        height={'150px'}
+        flex={{ grow: 1 }}
+        pad={'none'}
+        overflow={'hidden'}
+      >
         <Box
           style={{ position: 'absolute', zIndex: 10 }}
           pad={'small'}
@@ -178,7 +184,8 @@ const ProductView = () => {
           </ReactFlow>
         )}
       </Card>
-      <Card height={'70%'} margin={'none'}>
+
+      <Card margin={'none'} height={'400px'} flex={{ grow: 4 }}>
         {loading ? (
           <LoadingIndicator overlay={false} loading />
         ) : (

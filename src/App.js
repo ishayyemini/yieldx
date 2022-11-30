@@ -16,7 +16,12 @@ import ProductView from './components/ProductView'
 import FarmList from './components/FarmList'
 import ProductList from './components/ProductList'
 
+// noinspection CssInvalidPropertyValue
 const GlobalStyle = createGlobalStyle`
+  html {
+    height: -webkit-fill-available;
+  }
+  
   body {
     font-family: "Lato", sans-serif;
     --main: #f9dec8ff;
@@ -25,6 +30,23 @@ const GlobalStyle = createGlobalStyle`
     --active: #ddf093ff;
     --muted: #638475ff;
     --body: #E0E0E0;
+
+    display: flex;
+    margin: 0;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+  
+  #root {
+    display: flex;
+    flex-grow: 1;
+    
+    > div {
+      display: flex;
+      flex-grow: 1;
+    }
   }
 `
 
@@ -73,7 +95,7 @@ const theme = {
 
 const GrommetWrapper = (Element) => () => {
   return (
-    <Grommet theme={theme} full>
+    <Grommet theme={theme}>
       <Element />
     </Grommet>
   )
@@ -150,19 +172,30 @@ const App = () => {
                 <LoadingIndicator loading overlay={false} />
               ) : null}
               {authStage === 'loggedIn' ? (
-                <Routes>
-                  <Route path={'/'} element={<FarmList />} />
-                  <Route path={'farm/:UID'} element={<WarehouseList />} />
-                  <Route path={'warehouse/:UID'} element={<WarehouseView />} />
-                  <Route
-                    path={'warehouse/:UID/products'}
-                    element={<ProductList />}
-                  />
-                  <Route path={'product/:UID'} element={<ProductView />} />
-                  <Route path={'label-trolleys'} element={<LabelTrolleys />} />
-                  <Route path={'settings'} element={<Settings />} />
-                  <Route path={'*'} element={<Navigate replace to={'/'} />} />
-                </Routes>
+                <Box
+                  flex={'grow'}
+                  style={{ [small ? 'height' : 'width']: '200px' }}
+                >
+                  <Routes>
+                    <Route path={'/'} element={<FarmList />} />
+                    <Route path={'farm/:UID'} element={<WarehouseList />} />
+                    <Route
+                      path={'warehouse/:UID'}
+                      element={<WarehouseView />}
+                    />
+                    <Route
+                      path={'warehouse/:UID/products'}
+                      element={<ProductList />}
+                    />
+                    <Route path={'product/:UID'} element={<ProductView />} />
+                    <Route
+                      path={'label-trolleys'}
+                      element={<LabelTrolleys />}
+                    />
+                    <Route path={'settings'} element={<Settings />} />
+                    <Route path={'*'} element={<Navigate replace to={'/'} />} />
+                  </Routes>
+                </Box>
               ) : null}
             </>
           ) : null}
