@@ -172,7 +172,7 @@ const SensorsChart = ({
                 [new Date(trans.CreateDate).getTime(), maxValue],
                 [
                   new Date(
-                    array[index + 1]?.CreateDate ?? series[0].data[0][0]
+                    array[index + 1]?.CreateDate ?? series[0].data[0]?.[0]
                   ).getTime(),
                   maxValue,
                 ],
